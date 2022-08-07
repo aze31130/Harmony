@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-JAVA_VERSION="8"
+JAVA_VERSION="17"
 BUILD_FOLDER="server-build"
 OUTPUT_JAR_NAME="harmony-server.jar"
 echo "Compiling server !"
