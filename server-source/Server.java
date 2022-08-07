@@ -16,7 +16,7 @@ public class Server {
 	//List of every server variables
 	public String serverName;
 	public String serverDescription;
-	public int serverPort;
+	public int serverPort = 3378;
 	public String server_key_name;
 	public String server_key_algorithm;
 	public int maxMembers;
