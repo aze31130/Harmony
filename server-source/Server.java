@@ -40,6 +40,9 @@ public class Server {
 		this.commands.add(new Help());
 		this.commands.add(new Version());
 
+		//Initialize list of online people
+		this.onlineUsers = new ArrayList<ClientHandler>();
+
 		//Load mods and plugins (TODO)
 
 	}
@@ -68,7 +71,6 @@ public class Server {
 				ch.output.writeUTF("Welcome !");
 			}
 		} catch(IOException e) {
-
 		}
 	}
 }

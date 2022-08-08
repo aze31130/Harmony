@@ -29,9 +29,11 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         while(!this.isLoggedIn) {
+            //get ip address of client, if the ip appears in the ban list then kill the handler
             //get pubkey of client
             //check if the key is registered in only one profile
             //if the key is not registered then kill the handler
+            //if the name of the account appear in the ban list then kill the handler
             //generate random string
             //ciphers it with client's pub key
             //send it to client
@@ -51,6 +53,13 @@ public class ClientHandler implements Runnable {
                 String received = this.input.readUTF();
 
                 System.out.println(received);
+
+                //Broadcast it to other clients
+                for (ClientHandler client : Server.getInstance().onlineUsers) {
+                    if (client != this)
+                        client.output.writeUTF(received);
+                }
+
             } catch(IOException e) {
                 Server.getInstance().onlineUsers.remove(this);
                 System.out.println("Client disconnected !");
