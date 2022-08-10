@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-JAVA_VERSION="8"
+JAVA_VERSION="18"
 BUILD_FOLDER="client-build"
 OUTPUT_JAR_NAME="client-server.jar"
 echo "Compiling client !"

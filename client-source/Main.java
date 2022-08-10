@@ -47,7 +47,7 @@ public class Main {
 			sendMessage.start();
 			receiveMessage.start();
 		} catch(IOException e) {
-			e.printStackTrace();
+			System.err.println("Cannot connect to server");
 		}
 	}
 }

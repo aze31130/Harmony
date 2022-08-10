@@ -1,6 +1,10 @@
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.KeyPair;
 import java.util.List;
 import java.util.ArrayList;
@@ -28,12 +32,9 @@ public class Server {
 	//Public and private encryption key
 	private KeyPair keyPair;
 
-
-
 	private Server() {
-		//Load config file (server variables)
-
-		//Load banList
+		this.loadConfig();
+		this.loadBanlist();
 
 		//Load commands (core)
 		this.commands = new ArrayList<Command>();
@@ -43,8 +44,11 @@ public class Server {
 		//Initialize list of online people
 		this.onlineUsers = new ArrayList<ClientHandler>();
 
-		//Load mods and plugins (TODO)
+		//Load mods first
+		this.loadMods();
 
+		//Load plugins
+		this.loadPlugins();
 	}
 
 	/*
@@ -54,6 +58,47 @@ public class Server {
 		if (instance == null)
 			instance = new Server();
 		return instance;
+	}
+
+	public void loadConfig() {
+		//Load config file (server variables)
+	}
+
+	public void loadBanlist() {
+		//Load the ban list
+	}
+
+	public void loadPlugins() {
+		//plugin = server sided only (adds behavior on existing things)
+		try {
+			File pluginsFolder = new File("./plugins");
+			List<File> pluginPaths = new ArrayList<File>();
+			
+			for (File plugin : pluginsFolder.listFiles())
+				if (plugin.getName().endsWith(".jar"))
+					pluginPaths.add(plugin);
+					
+			URL[] urls = new URL[pluginPaths.size()];
+			
+			for (int i = 0; i < pluginPaths.size(); i++)
+				urls[i] = pluginPaths.get(i).toURI().toURL();
+				
+			for(URL u : urls) {
+				URLClassLoader urlcl = new URLClassLoader(urls);
+				Class<?> c = urlcl.loadClass("HarmonyPlugin");
+				
+				Object o = c.getDeclaredConstructor().newInstance();
+				Method m = c.getMethod("onLoad");
+				m.invoke(o);
+				urlcl.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void loadMods() {
+		//mod = server sends the mods to the client (adds content and new things such as new classes)
 	}
 
 	public void start() {
@@ -71,6 +116,7 @@ public class Server {
 				ch.output.writeUTF("Welcome !");
 			}
 		} catch(IOException e) {
+			e.printStackTrace();
 		}
 	}
 }

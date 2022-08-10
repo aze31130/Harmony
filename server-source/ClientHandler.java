@@ -52,6 +52,8 @@ public class ClientHandler implements Runnable {
             try {
                 String received = this.input.readUTF();
 
+                // unserialize input and trigger an event
+
                 System.out.println(received);
 
                 //Broadcast it to other clients
