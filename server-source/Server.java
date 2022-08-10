@@ -5,13 +5,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.KeyPair;
 import java.util.List;
 import java.util.ArrayList;
 
 import commands.Command;
 import commands.Help;
 import commands.Version;
+import plugins.Plugin;
 
 public class Server {
 	//Singleton design pattern
@@ -25,12 +25,17 @@ public class Server {
 	public String server_key_algorithm;
 	public int maxMembers;
 
+	public Boolean running = true;
+
 	public List<Command> commands;
 	//public List<Ban> banList;
+	public List<Plugin> plugins;
 	public List<ClientHandler> onlineUsers;
 
+	public String version = "0.0.1";
+
 	//Public and private encryption key
-	private KeyPair keyPair;
+	//private KeyPair keyPair;
 
 	private Server() {
 		this.loadConfig();
@@ -105,7 +110,7 @@ public class Server {
 		System.out.println("Server is running ! Listening on port " + this.serverPort);
 		try {
 			ServerSocket ss = new ServerSocket(this.serverPort);
-			while(true) {
+			while(this.running) {
 				Socket s = ss.accept();
 				
 				System.out.println("Accepting socket on " + s.getRemoteSocketAddress());
@@ -115,6 +120,7 @@ public class Server {
 				System.out.println("Client connected !");
 				ch.output.writeUTF("Welcome !");
 			}
+			ss.close();
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
