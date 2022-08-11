@@ -40,21 +40,22 @@ public class Server {
 	//private KeyPair keyPair;
 
 	private Server() {
+		//Loads server's variables
 		this.loadConfig();
-		this.loadBanlist();
 
-		//Load commands (core)
-		this.commands = new ArrayList<Command>();
-		this.commands.add(new Help());
-		this.commands.add(new Version());
+		//Loads core commands
+		this.loadCommands();
+
+		//Loads banlist
+		this.loadBanlist();
 
 		//Initialize list of online people
 		this.onlineUsers = new ArrayList<ClientHandler>();
 
-		//Load mods first
+		//Loads mods first
 		this.loadMods();
 
-		//Load plugins
+		//Loads plugins
 		this.loadPlugins();
 	}
 
@@ -71,46 +72,41 @@ public class Server {
 		//Load config file (server variables)
 	}
 
+	public void loadCommands() {
+		this.commands = new ArrayList<Command>();
+		this.commands.add(new Help());
+		this.commands.add(new Version());
+	}
+
 	public void loadBanlist() {
 		//Load the ban list
+	}
+
+	public void loadMods() {
+		//mod = server sends the mods to the client (adds content and new things such as new classes)
 	}
 
 	public void loadPlugins() {
 		//plugin = server sided only (adds behavior on existing things)
 		try {
 			File pluginsFolder = new File("./plugins");
-			List<File> pluginPaths = new ArrayList<File>();
 			
-			for (File plugin : pluginsFolder.listFiles())
-				if (plugin.getName().endsWith(".jar"))
-					pluginPaths.add(plugin);
+			for (File plugin : pluginsFolder.listFiles()) {
+				if (plugin.getName().endsWith(".jar")) {
+					URL[] urls = new URL[1];
+					urls[0] = plugin.toURI().toURL();
+					URLClassLoader urlcl = new URLClassLoader(urls);
+					Class<?> c = urlcl.loadClass("HarmonyPlugin");
 					
-			URL[] urls = new URL[pluginPaths.size()];
-			
-			for (int i = 0; i < pluginPaths.size(); i++)
-				urls[i] = pluginPaths.get(i).toURI().toURL();
-
-			for (int i = 0; i < pluginPaths.size(); i++)
-				System.out.println(urls[i]);
-				
-			//for(URL u : urls) {
-				URLClassLoader urlcl = new URLClassLoader(urls);
-				Class<?> c = urlcl.loadClass("HarmonyPlugin");
-				
-				Object o = c.getDeclaredConstructor().newInstance();
-				Method m = c.getMethod("onLoad");
-				m.invoke(o);
-				urlcl.close();
-
-				//this.plugins.add()
-			//}
+					Object o = c.getDeclaredConstructor().newInstance();
+					Method m = c.getMethod("onLoad");
+					m.invoke(o);
+					urlcl.close();
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void loadMods() {
-		//mod = server sends the mods to the client (adds content and new things such as new classes)
 	}
 
 	public void addCommand(Command newCommand) {
