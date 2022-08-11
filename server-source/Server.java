@@ -13,6 +13,7 @@ import commands.Command;
 import commands.Help;
 import commands.Version;
 import plugins.Plugin;
+import plugins.PluginPriority;
 import users.Ban;
 
 public class Server {
@@ -87,6 +88,7 @@ public class Server {
 	}
 
 	public void loadPlugins() {
+		this.plugins = new ArrayList<Plugin>();
 		//plugin = server sided only (adds behavior on existing things)
 		try {
 			File pluginsFolder = new File("./plugins");
@@ -95,9 +97,15 @@ public class Server {
 				if (plugin.getName().endsWith(".jar")) {
 					URL[] urls = new URL[1];
 					urls[0] = plugin.toURI().toURL();
+
 					URLClassLoader urlcl = new URLClassLoader(urls);
+					//Search for the class called HarmonyPlugin
 					Class<?> c = urlcl.loadClass("HarmonyPlugin");
-					
+
+					//Need to load plugin information with config file or with properties in class as fields
+					Plugin p = new Plugin("", "", "", "", PluginPriority.NORMAL, c);
+					this.plugins.add(p);
+
 					Object o = c.getDeclaredConstructor().newInstance();
 					Method m = c.getMethod("onLoad");
 					m.invoke(o);

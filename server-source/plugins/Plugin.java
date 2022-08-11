@@ -9,14 +9,15 @@ public class Plugin {
     public String description;
     public String version;
     public PluginPriority priority;
-    public List<Method> methods;
 
-    public Plugin(String name, String author, String description, String version, PluginPriority priority, List<Method> methods) {
+    public Class<?> pluginClass;
+
+    public Plugin(String name, String author, String description, String version, PluginPriority priority, Class<?> pluginClass) {
         this.name = name;
         this.author = author;
         this.description = description;
         this.version = version;
         this.priority = priority;
-        this.methods = methods;
+        this.pluginClass = pluginClass;
     }
 }

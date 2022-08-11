@@ -1,8 +1,11 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.Socket;
 
+import plugins.Plugin;
 import users.User;
 
 public class ClientHandler implements Runnable {
@@ -56,12 +59,37 @@ public class ClientHandler implements Runnable {
 
                 System.out.println(received);
 
+                for(Plugin p : Server.getInstance().plugins) {
+                    try {
+                        Object o = p.pluginClass.getDeclaredConstructor().newInstance();
+                        Method m = p.pluginClass.getMethod("onLoad");
+                        m.invoke(o);
+                    } catch (InstantiationException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IllegalArgumentException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (NoSuchMethodException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (SecurityException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+
                 //Broadcast it to other clients
                 for (ClientHandler client : Server.getInstance().onlineUsers) {
                     if (client != this)
                         client.output.writeUTF(received);
                 }
-
             } catch(IOException e) {
                 Server.getInstance().onlineUsers.remove(this);
                 System.out.println("Client disconnected !");
