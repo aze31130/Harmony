@@ -3,12 +3,12 @@ package commands;
 import users.Privilege;
 import users.User;
 
-public class Version extends Command {
-    public Version() {
+public class Status extends Command {
+    public Status() {
         super(
-            "version",
-            "v",
-            "Shows the version of the server",
+            "status",
+            "st",
+            "Displays server status",
             Privilege.NONE,
             "core"
         );    
@@ -16,6 +16,6 @@ public class Version extends Command {
 
     @Override
     public void execute(User executor, String[] arguments) {
-        System.out.println("Version command test");
+        System.out.println("Status command");
     }
 }

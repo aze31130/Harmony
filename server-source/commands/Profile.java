@@ -3,12 +3,12 @@ package commands;
 import users.Privilege;
 import users.User;
 
-public class Version extends Command {
-    public Version() {
+public class Profile extends Command {
+    public Profile() {
         super(
-            "version",
-            "v",
-            "Shows the version of the server",
+            "profile",
+            "p",
+            "Displays your profile's informations",
             Privilege.NONE,
             "core"
         );    
@@ -16,6 +16,6 @@ public class Version extends Command {
 
     @Override
     public void execute(User executor, String[] arguments) {
-        System.out.println("Version command test");
+        System.out.println("Profile command");
     }
 }

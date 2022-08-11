@@ -6,12 +6,14 @@ import java.net.Socket;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
+import channels.Channel;
 import java.util.ArrayList;
 
 import commands.Command;
 import commands.Help;
 import commands.Version;
 import plugins.Plugin;
+import users.Ban;
 
 public class Server {
 	//Singleton design pattern
@@ -26,12 +28,12 @@ public class Server {
 	public int maxMembers;
 
 	public Boolean running = true;
+	public int saveInterval = 600;
 
 	public List<Command> commands;
-	//public List<Ban> banList;
+	public List<Ban> banList;
 	public List<Plugin> plugins;
 	public List<ClientHandler> onlineUsers;
-
 	public String version = "0.0.1";
 
 	//Public and private encryption key
@@ -87,8 +89,11 @@ public class Server {
 			
 			for (int i = 0; i < pluginPaths.size(); i++)
 				urls[i] = pluginPaths.get(i).toURI().toURL();
+
+			for (int i = 0; i < pluginPaths.size(); i++)
+				System.out.println(urls[i]);
 				
-			for(URL u : urls) {
+			//for(URL u : urls) {
 				URLClassLoader urlcl = new URLClassLoader(urls);
 				Class<?> c = urlcl.loadClass("HarmonyPlugin");
 				
@@ -96,7 +101,9 @@ public class Server {
 				Method m = c.getMethod("onLoad");
 				m.invoke(o);
 				urlcl.close();
-			}
+
+				//this.plugins.add()
+			//}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -104,6 +111,16 @@ public class Server {
 
 	public void loadMods() {
 		//mod = server sends the mods to the client (adds content and new things such as new classes)
+	}
+
+	public void addCommand(Command newCommand) {
+		//To improve later, create new command from argument here
+		//and assign a given execute method
+		this.commands.add(newCommand);
+	}
+
+	public void addChannel(Channel newChannel) {
+		//TODO
 	}
 
 	public void start() {
