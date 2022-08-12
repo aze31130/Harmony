@@ -62,8 +62,8 @@ public class ClientHandler implements Runnable {
                 for(Plugin p : Server.getInstance().plugins) {
                     try {
                         Object o = p.pluginClass.getDeclaredConstructor().newInstance();
-                        Method m = p.pluginClass.getMethod("onLoad");
-                        m.invoke(o);
+                        Method m = p.pluginClass.getMethod("onMessage", String.class);
+                        m.invoke(o, received);
                     } catch (InstantiationException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();

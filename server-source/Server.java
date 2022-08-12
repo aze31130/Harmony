@@ -83,13 +83,34 @@ public class Server {
 		//Load the ban list
 	}
 
+	/*
+	 * Mods, client and server sided, adds new features and classes that aren't present in the server by default.
+	 * Note that mods are loaded BEFORE plugins, that way, plugins can add behaviors on mods.
+	 */
 	public void loadMods() {
 		//mod = server sends the mods to the client (adds content and new things such as new classes)
 	}
 
+	/*
+	 * Plugins, server sided, adds behavior on features that are present in the "vanilla" server.
+	 */
 	public void loadPlugins() {
+		/*
+		 * <!> WARNING <!>
+		 * As of today, there is a problem with plugin that imports external libraries.
+		 * 
+		 * Plugins cannot come with their own libraries. This will be resolved later as this isn't a priority.
+		 * The issue comes from the classpath of included lib.
+		 * 
+		 * If a plugin imports a package, when the plugin will be loaded in the server, it will look for that package
+		 * in the server's root class path. If the lib is already present in the server build there is no issue.
+		 * 
+		 * A solution to that will be to load every class files included in the plugin.jar dynamically. That way,
+		 * all the dependancies should be included in the plugin.jar file and aren't installed in the server build.
+		 */
+
 		this.plugins = new ArrayList<Plugin>();
-		//plugin = server sided only (adds behavior on existing things)
+
 		try {
 			File pluginsFolder = new File("./plugins");
 			
@@ -135,6 +156,8 @@ public class Server {
 				Socket s = ss.accept();
 				
 				System.out.println("Accepting socket on " + s.getRemoteSocketAddress());
+
+				//Check if ban ip here
 
 				ClientHandler ch = new ClientHandler(s);
 				this.onlineUsers.add(ch);
