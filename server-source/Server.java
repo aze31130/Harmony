@@ -6,8 +6,12 @@ import java.net.Socket;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+
 import channels.Channel;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 import commands.Command;
 import commands.Help;
@@ -97,29 +101,48 @@ public class Server {
 	public void loadPlugins() {
 		/*
 		 * <!> WARNING <!>
-		 * As of today, there is a problem with plugin that imports external libraries.
+		 * The issue has been partially resolved. The server will load every class file from every plugin.jar.
 		 * 
-		 * Plugins cannot come with their own libraries. This will be resolved later as this isn't a priority.
-		 * The issue comes from the classpath of included lib.
+		 * It's now possible to import libraries in a plugin but it is mandatory to package it within your plugin.jar file.
+		 * There is still a known issue: if inside your dependancies a file imports a module from another dependancy then it is possible
+		 * for the server to throw a NoClassDefFoundError. I believe this is due to load order but this will be fixed later on. 
 		 * 
-		 * If a plugin imports a package, when the plugin will be loaded in the server, it will look for that package
-		 * in the server's root class path. If the lib is already present in the server build there is no issue.
-		 * 
-		 * A solution to that will be to load every class files included in the plugin.jar dynamically. That way,
-		 * all the dependancies should be included in the plugin.jar file and aren't installed in the server build.
+		 * The case where 2 plugins brings the same library has not been tested yet and is not consider as priority.
 		 */
-
 		this.plugins = new ArrayList<Plugin>();
 
 		try {
 			File pluginsFolder = new File("./plugins");
-			
+
+			//Iterate through every files in the plugins folder
 			for (File plugin : pluginsFolder.listFiles()) {
+
+				//Check if it's a jar file
 				if (plugin.getName().endsWith(".jar")) {
-					URL[] urls = new URL[1];
-					urls[0] = plugin.toURI().toURL();
+
+					//Convert it to URL[]
+					URL[] urls = { new URL("file:" + plugin.getPath()) };
 
 					URLClassLoader urlcl = new URLClassLoader(urls);
+					
+					JarFile jarFile = new JarFile(plugin.getPath());
+					Enumeration<JarEntry> e = jarFile.entries();
+					
+					//Get all classes path to load plugin dependencies
+					while (e.hasMoreElements()) {
+						JarEntry je = (JarEntry) e.nextElement();
+
+						//If the entry is not a class file
+						if(je.isDirectory() || !je.getName().endsWith(".class") || je.getName().equalsIgnoreCase("HarmonyPlugin"))
+							continue;
+						
+						//Substring with -6 because ".class" is 6 characters long
+						String className = je.getName().substring(0, je.getName().length() - 6);
+						className = className.replace('/', '.');
+						//Load the class into the server
+						urlcl.loadClass(className);
+					}
+
 					//Search for the class called HarmonyPlugin
 					Class<?> c = urlcl.loadClass("HarmonyPlugin");
 
