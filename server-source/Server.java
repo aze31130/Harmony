@@ -30,7 +30,7 @@ public class Server {
 	public int serverPort = 3378;
 	public String server_key_name;
 	public String server_key_algorithm;
-	public int maxMembers;
+	public int maxMembers = 10;
 
 	public Boolean running = true;
 	public int saveInterval = 600;
@@ -57,9 +57,6 @@ public class Server {
 		//Initialize list of online people
 		this.onlineUsers = new ArrayList<ClientHandler>();
 
-		//Loads mods first
-		this.loadMods();
-
 		//Loads plugins
 		this.loadPlugins();
 	}
@@ -85,14 +82,6 @@ public class Server {
 
 	public void loadBanlist() {
 		//Load the ban list
-	}
-
-	/*
-	 * Mods, client and server sided, adds new features and classes that aren't present in the server by default.
-	 * Note that mods are loaded BEFORE plugins, that way, plugins can add behaviors on mods.
-	 */
-	public void loadMods() {
-		//mod = server sends the mods to the client (adds content and new things such as new classes)
 	}
 
 	/*
@@ -180,7 +169,14 @@ public class Server {
 				
 				System.out.println("Accepting socket on " + s.getRemoteSocketAddress());
 
-				//Check if ban ip here
+				//Check if the server is full
+				if (this.onlineUsers.size() >= this.maxMembers) {
+					System.out.println("Server full !");
+					//Error message "Sorry, the server is full" will be client sided
+					//Instantly kills the handler to save ressources
+					s.close();
+					continue;
+				}
 
 				ClientHandler ch = new ClientHandler(s);
 				this.onlineUsers.add(ch);
