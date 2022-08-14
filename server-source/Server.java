@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.KeyPair;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -33,6 +34,8 @@ public class Server {
 	public int maxMembers = 10;
 
 	public Boolean running = true;
+
+	//Interval in seconds to flush messages and ban list to a file 
 	public int saveInterval = 600;
 
 	public List<Command> commands;
@@ -42,7 +45,7 @@ public class Server {
 	public String version = "0.0.1";
 
 	//Public and private encryption key
-	//private KeyPair keyPair;
+	private KeyPair keyPair;
 
 	private Server() {
 		//Loads server's variables
@@ -62,8 +65,8 @@ public class Server {
 	}
 
 	/*
-	Singleton design pattern, returns the current server instance
-	*/
+	 * Singleton design pattern, returns the current server instance
+	 */
 	public static synchronized Server getInstance() {
 		if (instance == null)
 			instance = new Server();
@@ -90,13 +93,19 @@ public class Server {
 	public void loadPlugins() {
 		/*
 		 * <!> WARNING <!>
-		 * The issue has been partially resolved. The server will load every class file from every plugin.jar.
 		 * 
-		 * It's now possible to import libraries in a plugin but it is mandatory to package it within your plugin.jar file.
+		 * This method will make the server dynamically load class files from the plugin folder.
+		 * 
+		 * Every plugin needs to have a class named "HarmonyPlugin" that contains events that the plugin wants to listen.
+		 * Plugins can import custom libraries but it is mandatory to package every included libraries within the plugin.jar file.
+		 * 
 		 * There is still a known issue: if inside your dependancies a file imports a module from another dependancy then it is possible
 		 * for the server to throw a NoClassDefFoundError. I believe this is due to load order but this will be fixed later on. 
 		 * 
-		 * The case where 2 plugins brings the same library has not been tested yet and is not consider as priority.
+		 * The case where 2 plugins brings the same library or depends on each other has not been tested yet and is not consider as priority.
+		 * 
+		 * Server administrators need to ensure that loaded plugins are not malevolent as this method does not check the injected code
+		 * and every plugin can get and modify server's attribute.
 		 */
 		this.plugins = new ArrayList<Plugin>();
 

@@ -1,5 +1,6 @@
 package users;
 
+import java.security.PublicKey;
 import java.time.LocalDate;
 
 public class User {
@@ -15,4 +16,6 @@ public class User {
 	public int totalExperience;
 	public int money;
 	public int fame;
+
+    public PublicKey pubKey;
 }

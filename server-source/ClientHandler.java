@@ -5,6 +5,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 
+import json.JSONException;
+import json.JSONObject;
+import json.JSONTokener;
 import plugins.Plugin;
 import users.User;
 
@@ -31,8 +34,11 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
+
+        //get ip address of client, if the ip appears in the ban list then kill the handler
+
+
         while(!this.isLoggedIn) {
-            //get ip address of client, if the ip appears in the ban list then kill the handler
             //get pubkey of client
             //check if the key is registered in only one profile
             //if the key is not registered then kill the handler
@@ -53,47 +59,62 @@ public class ClientHandler implements Runnable {
 
         while(true) {
             try {
-                String received = this.input.readUTF();
+                String rawStringReceived = this.input.readUTF();
+                
+                //Parsing received json
+                JSONTokener parser = new JSONTokener(rawStringReceived);
 
-                // unserialize input and trigger an event
+                JSONObject object = new JSONObject(parser);
 
-                System.out.println(received);
-
-                for(Plugin p : Server.getInstance().plugins) {
-                    try {
-                        Object o = p.pluginClass.getDeclaredConstructor().newInstance();
-                        Method m = p.pluginClass.getMethod("onMessage", String.class);
-                        m.invoke(o, received);
-                    } catch (InstantiationException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (IllegalArgumentException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (NoSuchMethodException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (SecurityException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                //if client is sending a message
+                if (object.has("message")) {
+                    String message = object.getString("message");
+                    System.out.println("Received message: " + message);
+                    for(Plugin p : Server.getInstance().plugins) {
+                        try {
+                            Object o = p.pluginClass.getDeclaredConstructor().newInstance();
+                            Method m = p.pluginClass.getMethod("onMessage", String.class);
+                            m.invoke(o, message);
+                        } catch (InstantiationException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (IllegalAccessException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (IllegalArgumentException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (NoSuchMethodException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        } catch (SecurityException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
                     }
+    
+                    //Broadcast it to other clients
+                    for (ClientHandler client : Server.getInstance().onlineUsers) {
+                        if (client != this)
+                            client.output.writeUTF(message);
+                    }
+                    continue;
                 }
 
-                //Broadcast it to other clients
-                for (ClientHandler client : Server.getInstance().onlineUsers) {
-                    if (client != this)
-                        client.output.writeUTF(received);
+                //if client is sending a command action
+                if (object.has("command")) {
+                    System.out.println("Received command: " + object.getString("command"));
+                    continue;
                 }
             } catch(IOException e) {
                 Server.getInstance().onlineUsers.remove(this);
                 System.out.println("Client disconnected !");
                 break;
+            } catch(JSONException jsonParseFailed) {
+                System.err.println("Error in user input, cannot parse json !");
             }
         }
     }
