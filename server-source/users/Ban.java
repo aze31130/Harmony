@@ -4,18 +4,14 @@ import java.util.Date;
 
 public class Ban {
     public BanType type;
-    public Date begin;
     public Date end;
     public String target;
     public String source;
 
-    public Ban(BanType type, String target, String source, Date begin, Date end) {
-        //We assure here that the end date is after the begin date.
-        //Checks will be applied to the Ban command
+    public Ban(BanType type, String target, String source, Date end) {
         this.type = type;
         this.target = target;
         this.source = source;
-        this.begin = begin;
         this.end = end;
     }
 

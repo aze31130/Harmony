@@ -17,6 +17,7 @@ import java.util.Enumeration;
 import commands.Command;
 import commands.Help;
 import commands.Version;
+import cryptography.Cryptography;
 import plugins.Plugin;
 import plugins.PluginPriority;
 import users.Ban;
@@ -45,7 +46,7 @@ public class Server {
 	public String version = "0.0.1";
 
 	//Public and private encryption key
-	private KeyPair keyPair;
+	public KeyPair keyPair;
 
 	private Server() {
 		//Loads server's variables
@@ -75,6 +76,12 @@ public class Server {
 
 	public void loadConfig() {
 		//Load config file (server variables)
+
+		//Load keyPair (for beta testing, it will be generated at each reboot)
+
+		//this.keyPair = Cryptography.generateKeyPair(1024);
+		//Cryptography.saveKeyPair(this.keyPair);
+		this.keyPair = Cryptography.loadKeyPair();
 	}
 
 	public void loadCommands() {

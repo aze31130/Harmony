@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
+import java.util.Base64;
 
+import cryptography.Cryptography;
 import json.JSONException;
 import json.JSONObject;
 import json.JSONTokener;
@@ -37,7 +39,6 @@ public class ClientHandler implements Runnable {
 
         //get ip address of client, if the ip appears in the ban list then kill the handler
 
-
         while(!this.isLoggedIn) {
             //get pubkey of client
             //check if the key is registered in only one profile
@@ -57,10 +58,33 @@ public class ClientHandler implements Runnable {
             break;
         }
 
+        //Server sends public key in base 64 or in raw binary ?
+        //Base64.getEncoder().encode(pubKey.getEncoded())
+
+
+        try {
+            System.out.println("Sending public key");
+            this.output.writeUTF(Base64.getEncoder().encode(Server.getInstance().keyPair.getPublic().getEncoded()).toString());
+
+        } catch(IOException exception) {
+            exception.printStackTrace();
+        }
+        
+
         while(true) {
             try {
                 String rawStringReceived = this.input.readUTF();
-                
+
+                System.out.println(Server.getInstance().keyPair.getPublic());
+
+                byte[] encoded = Cryptography.encrypt(rawStringReceived.getBytes(), Server.getInstance().keyPair.getPublic());
+            
+                System.out.println("DECODED:" + new String(encoded));
+
+                byte[] decoded = Cryptography.decrypt(encoded, Server.getInstance().keyPair.getPrivate());
+
+                System.out.println("DECODED:" + new String(decoded));
+
                 //Parsing received json
                 JSONTokener parser = new JSONTokener(rawStringReceived);
 

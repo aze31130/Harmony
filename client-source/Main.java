@@ -2,7 +2,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.security.KeyPair;
+import java.security.PublicKey;
 import java.util.Scanner;
+
+import cryptography.Cryptography;
 
 public class Main {
 
@@ -11,6 +15,10 @@ public class Main {
 
 	public static void main(String[] args) {
 		System.out.println("Starting client on CLI mode !");
+
+		KeyPair keyPair = Cryptography.generateKeyPair(1024);
+		PublicKey serverPubKey = null;
+
 		try {
 			Socket s = new Socket(SERVER_IP, SERVER_PORT);
 			DataInputStream input = new DataInputStream(s.getInputStream());
@@ -21,8 +29,10 @@ public class Main {
 				public void run() {
 					while(true) {
 						try {
-							String message = scanner.nextLine();
-							output.writeUTF(message);
+							String clearMessage = scanner.nextLine();
+							//String cipheredMessage = new String(Cryptography.encrypt(clearMessage.getBytes(), ));
+							
+							output.writeUTF(clearMessage);
 						} catch(IOException e) {
 							e.printStackTrace();
 						}
