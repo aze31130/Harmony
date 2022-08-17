@@ -79,9 +79,9 @@ public class Server {
 
 		//Load keyPair (for beta testing, it will be generated at each reboot)
 
-		//this.keyPair = Cryptography.generateKeyPair(1024);
+		this.keyPair = Cryptography.generateKeyPair(1024);
 		//Cryptography.saveKeyPair(this.keyPair);
-		this.keyPair = Cryptography.loadKeyPair();
+		//this.keyPair = Cryptography.loadKeyPair();
 	}
 
 	public void loadCommands() {
@@ -197,7 +197,6 @@ public class Server {
 				ClientHandler ch = new ClientHandler(s);
 				this.onlineUsers.add(ch);
 				System.out.println("Client connected !");
-				ch.output.writeUTF("Welcome !");
 			}
 			ss.close();
 		} catch(IOException e) {

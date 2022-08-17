@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
-import java.util.Base64;
+import java.security.PublicKey;
 
 import cryptography.Cryptography;
 import json.JSONException;
@@ -19,12 +19,16 @@ public class ClientHandler implements Runnable {
     public Socket socket;
     public DataInputStream input;
     public DataOutputStream output;
+    public String secret;
+    public String salt;
 
     public Boolean isLoggedIn = false;
 
     public ClientHandler(Socket s) {
         this.thread = new Thread(this);
         this.socket = s;
+        this.secret = Cryptography.generateSecureRandomString(32);
+        this.salt = Cryptography.generateSecureRandomString(32);
         try {
             this.input = new DataInputStream(s.getInputStream());
             this.output = new DataOutputStream(s.getOutputStream());
@@ -34,11 +38,8 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    @Override
-    public void run() {
-
+    public Boolean handshake() {
         //get ip address of client, if the ip appears in the ban list then kill the handler
-
         while(!this.isLoggedIn) {
             //get pubkey of client
             //check if the key is registered in only one profile
@@ -58,32 +59,40 @@ public class ClientHandler implements Runnable {
             break;
         }
 
-        //Server sends public key in base 64 or in raw binary ?
-        //Base64.getEncoder().encode(pubKey.getEncoded())
-
 
         try {
-            System.out.println("Sending public key");
-            this.output.writeUTF(Base64.getEncoder().encode(Server.getInstance().keyPair.getPublic().getEncoded()).toString());
-
+            System.out.println("Sending public key (hashcode:" + Server.getInstance().keyPair.getPublic().getEncoded().hashCode() + ")");
+            this.output.write(Server.getInstance().keyPair.getPublic().getEncoded());
         } catch(IOException exception) {
             exception.printStackTrace();
         }
-        
 
-        while(true) {
+        //Server retrieve client's pub key
+        try {
+            System.out.println("Getting public key");
+            byte[] receivedRaw = new byte[1024];
+            input.read(receivedRaw);
+
+            PublicKey clientPubKey = Cryptography.loadPublicKey(receivedRaw);
+            this.user = new User();
+            this.user.pubKey = clientPubKey;
+
+            System.out.println("Received RAW: " + clientPubKey.getEncoded().hashCode());
+            System.out.println("Received RAW: " + clientPubKey.hashCode());
+        } catch(IOException exception) {
+            exception.printStackTrace();
+        }
+        return true;
+    }
+
+    @Override
+    public void run() {
+        this.isLoggedIn = handshake();
+
+        while(this.isLoggedIn) {
             try {
+                
                 String rawStringReceived = this.input.readUTF();
-
-                System.out.println(Server.getInstance().keyPair.getPublic());
-
-                byte[] encoded = Cryptography.encrypt(rawStringReceived.getBytes(), Server.getInstance().keyPair.getPublic());
-            
-                System.out.println("DECODED:" + new String(encoded));
-
-                byte[] decoded = Cryptography.decrypt(encoded, Server.getInstance().keyPair.getPrivate());
-
-                System.out.println("DECODED:" + new String(decoded));
 
                 //Parsing received json
                 JSONTokener parser = new JSONTokener(rawStringReceived);
@@ -119,7 +128,7 @@ public class ClientHandler implements Runnable {
                             e.printStackTrace();
                         }
                     }
-    
+
                     //Broadcast it to other clients
                     for (ClientHandler client : Server.getInstance().onlineUsers) {
                         if (client != this)
