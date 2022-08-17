@@ -91,7 +91,6 @@ public class ClientHandler implements Runnable {
 
         while(this.isLoggedIn) {
             try {
-                
                 String rawStringReceived = this.input.readUTF();
 
                 //Parsing received json

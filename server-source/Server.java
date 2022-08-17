@@ -18,9 +18,12 @@ import commands.Command;
 import commands.Help;
 import commands.Version;
 import cryptography.Cryptography;
+import json.JSONObject;
 import plugins.Plugin;
 import plugins.PluginPriority;
 import users.Ban;
+import utils.FileUtils;
+import utils.JsonIO;
 
 public class Server {
 	//Singleton design pattern
@@ -38,6 +41,8 @@ public class Server {
 
 	//Interval in seconds to flush messages and ban list to a file 
 	public int saveInterval = 600;
+
+	public String banListFileName;
 
 	public List<Command> commands;
 	public List<Ban> banList;
@@ -75,10 +80,19 @@ public class Server {
 	}
 
 	public void loadConfig() {
-		//Load config file (server variables)
+		//Check if config file exists
+		if (FileUtils.isFileExists("config.json")) {
+			//Load config file (server variables)
+		} else {
+			//Create default one and load it
+			
+			loadConfig();
+		}
+		
+
+		
 
 		//Load keyPair (for beta testing, it will be generated at each reboot)
-
 		this.keyPair = Cryptography.generateKeyPair(1024);
 		//Cryptography.saveKeyPair(this.keyPair);
 		//this.keyPair = Cryptography.loadKeyPair();
@@ -90,8 +104,13 @@ public class Server {
 		this.commands.add(new Version());
 	}
 
+	/*
+	 * Loads the ban list file
+	 */
 	public void loadBanlist() {
-		//Load the ban list
+		JSONObject bans = JsonIO.loadJsonObject(this.banListFileName);
+		
+		System.out.println(bans.toString());
 	}
 
 	/*
