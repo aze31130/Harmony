@@ -3,14 +3,16 @@ package users;
 import java.util.Date;
 
 public class Ban {
+    public int accountId;
+    public String ip;
     public BanType type;
     public Date end;
-    public String target;
-    public String source;
+    public int source;
 
-    public Ban(BanType type, String target, String source, Date end) {
+    public Ban(BanType type, int accountId, String ip, int source, Date end) {
         this.type = type;
-        this.target = target;
+        this.accountId = accountId;
+        this.ip = ip;
         this.source = source;
         this.end = end;
     }

@@ -81,13 +81,13 @@ public class Server {
 
 	public void loadConfig() {
 		//Check if config file exists
-		if (FileUtils.isFileExists("config.json")) {
+		//if (FileUtils.isFileExists("config.json")) {
 			//Load config file (server variables)
-		} else {
+		//} else {
 			//Create default one and load it
-			
-			loadConfig();
-		}
+
+			//loadConfig();
+		//}
 		
 
 		
@@ -108,9 +108,10 @@ public class Server {
 	 * Loads the ban list file
 	 */
 	public void loadBanlist() {
-		JSONObject bans = JsonIO.loadJsonObject(this.banListFileName);
+		this.banList = new ArrayList<Ban>();
+		//JSONObject bans = JsonIO.loadJsonObject(this.banListFileName);
 		
-		System.out.println(bans.toString());
+		//System.out.println(bans.toString());
 	}
 
 	/*
