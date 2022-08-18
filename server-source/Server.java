@@ -93,7 +93,7 @@ public class Server {
 		
 
 		//Load keyPair (for beta testing, it will be generated at each reboot)
-		this.keyPair = Cryptography.generateKeyPair(1024);
+		this.keyPair = Cryptography.generateKeyPair(4096);
 		//Cryptography.saveKeyPair(this.keyPair);
 		//this.keyPair = Cryptography.loadKeyPair();
 	}
