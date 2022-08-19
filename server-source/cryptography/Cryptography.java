@@ -2,7 +2,6 @@ package cryptography;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.InvalidKeyException;
@@ -14,25 +13,17 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.spec.PBEKeySpec;
 
 public class Cryptography {
-	public static final String cipherName = "RSA/ECB/PKCS1Padding";
-	public static final String key_algorithm = "RSA";
-
 	/*
 	 * Generates a random string with given length
 	 * The length parameter must be positive
@@ -48,9 +39,12 @@ public class Cryptography {
 		return builder.toString();
 	}
 
+	/*
+	 * Generates RSA keypair
+	 */
 	public static KeyPair generateKeyPair(int keySize) {
 		try {
-			KeyPairGenerator generator = KeyPairGenerator.getInstance(key_algorithm);
+			KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
 			generator.initialize(keySize);
 			return generator.generateKeyPair();
 		} catch (NoSuchAlgorithmException algoNotFound) {
@@ -59,6 +53,23 @@ public class Cryptography {
 		return null;
 	}
 
+	/*
+	 * Generate symmetric AES key
+	 */
+	public static SecretKey generateKey(int keySize) {
+		try {
+			KeyGenerator generator = KeyGenerator.getInstance("AES");
+			generator.init(keySize);
+			return generator.generateKey();
+		} catch (NoSuchAlgorithmException noAlgo) {
+			noAlgo.printStackTrace();
+		}
+		return null;
+	}
+
+	/*
+	 * Saves RSA keypair into files
+	 */
 	public static void saveKeyPair(KeyPair keys) {
 		PublicKey pubKey = keys.getPublic();
 		PrivateKey priKey = keys.getPrivate();
@@ -76,10 +87,13 @@ public class Cryptography {
 		}
 	}
 
+	/*
+	 * Load a public key from byte array
+	 */
 	public static PublicKey loadPublicKey(byte[] publicKey) {
 		try {
 			X509EncodedKeySpec publicKeySpecs = new X509EncodedKeySpec(publicKey);
-			KeyFactory keyFactory = KeyFactory.getInstance(key_algorithm);
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 			
 			return keyFactory.generatePublic(publicKeySpecs);
 		} catch (NoSuchAlgorithmException noAlgoFound) {
@@ -92,6 +106,9 @@ public class Cryptography {
 		return null;
 	}
 
+	/*
+	 * Load RSA keypair from file
+	 */
 	public static KeyPair loadKeyPair() {
 		try {
 			byte[] privateKeyBytes = Files.readAllBytes(Paths.get("./id_rsa"));
@@ -100,7 +117,7 @@ public class Cryptography {
 			PKCS8EncodedKeySpec privateKeySpecs = new PKCS8EncodedKeySpec(privateKeyBytes);
 			X509EncodedKeySpec publicKeySpecs = new X509EncodedKeySpec(publicKeyBytes);
 
-			KeyFactory keyFactory = KeyFactory.getInstance(key_algorithm);
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
 			KeyPair keyPair = new KeyPair(keyFactory.generatePublic(publicKeySpecs), keyFactory.generatePrivate(privateKeySpecs));
 
@@ -118,9 +135,9 @@ public class Cryptography {
 		return null;
 	}
 
-	public static byte[] encrypt(byte[] input, PublicKey pubKey) {
+	public static byte[] encrypt(PublicKey pubKey, byte[] input) {
 		try {
-			Cipher cipher = Cipher.getInstance(cipherName);
+			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 			cipher.init(Cipher.ENCRYPT_MODE, pubKey);
 			cipher.update(input);
 			return cipher.doFinal();
@@ -130,9 +147,9 @@ public class Cryptography {
 		return null;
 	}
 
-	public static byte[] decrypt(byte[] input, PrivateKey priKey) {
+	public static byte[] decrypt(PrivateKey priKey, byte[] input) {
 		try {
-			Cipher cipher = Cipher.getInstance(cipherName);
+			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 			cipher.init(Cipher.DECRYPT_MODE, priKey);
 			cipher.update(input);
 			return cipher.doFinal();
@@ -141,40 +158,40 @@ public class Cryptography {
 		}
 		return null;
 	}
-	
-	public static String encrypt(String strToEncrypt, String secret, String salt) {
+
+	public static byte[] encrypt(SecretKey symmetricKey, byte[] messageToEncrypt) {
 		try {
-			byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-			IvParameterSpec ivspec = new IvParameterSpec(iv);
-			
-			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-			KeySpec spec = new PBEKeySpec(secret.toCharArray(), salt.getBytes(), 65536, 256);
-			SecretKey tmp = factory.generateSecret(spec);
-			SecretKeySpec secretKey = new SecretKeySpec(tmp.getEncoded(), "AES");
-			
-			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-			cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivspec);
-			return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)));
-		} catch (Exception e) {
+			Cipher aesCipher = Cipher.getInstance("AES");
+			aesCipher.init(Cipher.ENCRYPT_MODE, symmetricKey);
+			return aesCipher.doFinal(messageToEncrypt);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (NoSuchPaddingException e) {
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		} catch (IllegalBlockSizeException e) {
+			e.printStackTrace();
+		} catch (BadPaddingException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
-	
-	public static String decrypt(String strToDecrypt, String secret, String salt) {
+
+	public static byte[] decrypt(SecretKey symmetricKey, byte[] messageToDecrypt) {
 		try {
-			byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-			IvParameterSpec ivspec = new IvParameterSpec(iv);
-			
-			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-			KeySpec spec = new PBEKeySpec(secret.toCharArray(), salt.getBytes(), 65536, 256);
-			SecretKey tmp = factory.generateSecret(spec);
-			SecretKeySpec secretKey = new SecretKeySpec(tmp.getEncoded(), "AES");
-			
-			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
-			cipher.init(Cipher.DECRYPT_MODE, secretKey, ivspec);
-			return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
-		} catch (Exception e) {
+			Cipher aesCipher = Cipher.getInstance("AES");
+			aesCipher.init(Cipher.DECRYPT_MODE, symmetricKey);
+			return aesCipher.doFinal(messageToDecrypt);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (NoSuchPaddingException e) {
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
+			e.printStackTrace();
+		} catch (IllegalBlockSizeException e) {
+			e.printStackTrace();
+		} catch (BadPaddingException e) {
 			e.printStackTrace();
 		}
 		return null;
