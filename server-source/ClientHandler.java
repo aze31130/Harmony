@@ -11,12 +11,12 @@ import java.security.PublicKey;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.management.openmbean.InvalidKeyException;
 
 import cryptography.Cryptography;
+import exceptions.ClientReceiveException;
 import json.JSONException;
 import json.JSONObject;
 import json.JSONTokener;
@@ -48,6 +48,34 @@ public class ClientHandler implements Runnable {
 		}
 	}
 
+	/*
+	 * This methods waits for the client to send a byte array
+	 */
+	public byte[] receive() throws ClientReceiveException, IOException {
+		//Getting client's message length
+		int messageLength = Integer.parseInt(this.input.readUTF());
+
+		//If message length is invalid
+		if ((messageLength < 0) || (messageLength > 10000000))
+			throw new ClientReceiveException("Message length invalid");
+
+		byte[] message = new byte[messageLength];
+		this.input.readFully(message, 0, message.length);
+		return message;
+	}
+
+	/*
+	 * This methods sends to the current client a byte array
+	 */
+	public void send(byte[] message) {
+		try {
+			this.output.writeUTF(Integer.toString(message.length));
+			this.output.write(message);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public Boolean handshake() {
 		try {
 			//get ip address of client
@@ -58,21 +86,9 @@ public class ClientHandler implements Runnable {
 				if (ban.type.equals(BanType.IP) && ban.ip.equals(ip.getHostAddress()))
 					return false;
 
-			//Sends server's public key
-			//System.out.println("Sending public key (hashcode:" + Server.getInstance().keyPair.getPublic().getEncoded().hashCode() + ")");
-			//this.output.write(Server.getInstance().keyPair.getPublic().getEncoded());
+			byte[] clientPubKey = this.receive();
 
-			//Getting client's pubKey
-			int length = Integer.parseInt(this.input.readUTF());
-			
-			//Refuse invalid length
-			if ((length <= 0) || (length > 32768))
-				return false;
-
-			byte[] message = new byte[length];
-
-			this.input.readFully(message, 0, message.length);
-			PublicKey clientPublicKey = Cryptography.loadPublicKey(message);
+			PublicKey clientPublicKey = Cryptography.loadPublicKey(clientPubKey);
 
 			//check if the key is registered in only one profile else return false
 			//TODO
@@ -92,40 +108,28 @@ public class ClientHandler implements Runnable {
 
 			//From here, the user has a valid key 
 
-
 			//Generate a symetric 256 bits AES key
-			KeyGenerator generator = KeyGenerator.getInstance("AES");
-			generator.init(256);
-			this.symetricKey = generator.generateKey();
+			this.symetricKey = Cryptography.generateKey(256);
 
 			//Ciphers it with client's pub key
-			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-            cipher.init(Cipher.PUBLIC_KEY, clientPublicKey);
-            byte[] encryptedSymetricKey = cipher.doFinal(symetricKey.getEncoded());
+			byte[] encryptedSymetricKey = Cryptography.encrypt(this.user.pubKey, this.symetricKey.getEncoded());
 
 			//Send the encrypted symetric key to client
-			this.output.writeUTF(Integer.toString(encryptedSymetricKey.length));
-			this.output.write(encryptedSymetricKey);
+			this.send(encryptedSymetricKey);
 
 			//Handshake is done
 			//If that procedure last for more than 10 seconds, kill the handler
 			//TODO
-		} catch (NoSuchAlgorithmException noAlgo) {
-			noAlgo.printStackTrace();
+		} catch (ClientReceiveException wrongBufferSize) {
+			wrongBufferSize.printStackTrace();
+			return false;
 		} catch (InvalidKeyException invalidKey) {
 			invalidKey.printStackTrace();
-		} catch (java.security.InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			return false;
+		} catch (IOException io) {
+			io.printStackTrace();
+			System.err.println("Client handshake incomplete !");
 		}
-		this.isLoggedIn = true;
 		return true;
 	}
 
@@ -135,16 +139,11 @@ public class ClientHandler implements Runnable {
 
 		while(this.isLoggedIn) {
 			try {
-				int length = Integer.parseInt(this.input.readUTF());
-				System.out.println("message length:" + length);
-
-				byte[] rawStringReceived = new byte[length];
-				this.input.readFully(rawStringReceived, 0, rawStringReceived.length);
+				byte[] rawStringReceived = this.receive();
 
 				//Use the symmetric key to decrypt
-				Cipher aesCipher = Cipher.getInstance("AES");
-				aesCipher.init(Cipher.DECRYPT_MODE, this.symetricKey);
-				byte[] bytePlainText = aesCipher.doFinal(rawStringReceived);
+				byte[] bytePlainText = Cryptography.decrypt(this.symetricKey, rawStringReceived);
+
 				String decryptedMessage = new String(bytePlainText);
 
 				System.out.println(decryptedMessage);
@@ -164,22 +163,16 @@ public class ClientHandler implements Runnable {
 							Method m = p.pluginClass.getMethod("onMessage", String.class);
 							m.invoke(o, message);
 						} catch (InstantiationException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} catch (IllegalAccessException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} catch (IllegalArgumentException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} catch (InvocationTargetException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} catch (NoSuchMethodException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						} catch (SecurityException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -187,13 +180,8 @@ public class ClientHandler implements Runnable {
 					//Broadcast it to other clients
 					for (ClientHandler client : Server.getInstance().onlineUsers) {
 						if (client != this){
-
-							Cipher encryptCipher = Cipher.getInstance("AES");
-							encryptCipher.init(Cipher.ENCRYPT_MODE, client.symetricKey);
-							byte[] messageEncrypted = encryptCipher.doFinal(message.getBytes());
-
-							client.output.writeUTF(Integer.toString(messageEncrypted.length));
-							client.output.write(messageEncrypted);
+							byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, message.getBytes());
+							client.send(messageEncrypted);
 						}
 					}
 					continue;
@@ -210,19 +198,8 @@ public class ClientHandler implements Runnable {
 				break;
 			} catch(JSONException jsonParseFailed) {
 				System.err.println("Error in user input, cannot parse json !");
-			} catch (NoSuchAlgorithmException e1) {
-				e1.printStackTrace();
-			} catch (NoSuchPaddingException e1) {
-				e1.printStackTrace();
-			} catch (java.security.InvalidKeyException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (IllegalBlockSizeException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (BadPaddingException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			} catch (ClientReceiveException cre) {
+				cre.printStackTrace();
 			}
 		}
 

@@ -1,11 +1,11 @@
 package users;
 
 public enum Privilege {
-    MAINTAINER(4),
-    ADMINISTRATOR(3),
-    MODERATOR(2),
+    NONE(0),
     CONTRIBUTOR(1),
-    NONE(0);
+    MODERATOR(2),
+    ADMINISTRATOR(3),
+    MAINTAINER(4);
 
     public final int level;
 
