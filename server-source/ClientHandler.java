@@ -5,13 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.management.openmbean.InvalidKeyException;
 
@@ -143,7 +137,6 @@ public class ClientHandler implements Runnable {
 
 				//Use the symmetric key to decrypt
 				byte[] bytePlainText = Cryptography.decrypt(this.symetricKey, rawStringReceived);
-
 				String decryptedMessage = new String(bytePlainText);
 
 				System.out.println(decryptedMessage);

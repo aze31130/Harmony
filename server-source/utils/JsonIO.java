@@ -25,6 +25,8 @@ public class JsonIO {
 	}
 
 	public static void createDefaultConfig() {
-		
+		//Create config.json file
+
+		//Create ban.json file
 	}
 }

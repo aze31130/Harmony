@@ -9,6 +9,7 @@ public class User {
     public int tag;
     public Privilege permissions;
     public String picture;
+    public String email;
     public LocalDate created;
     public LocalDate lastLogin;
     public int level;

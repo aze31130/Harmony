@@ -2,7 +2,7 @@
 set -e
 JAVA_VERSION="18"
 BUILD_FOLDER="client-build"
-OUTPUT_JAR_NAME="client-server.jar"
+OUTPUT_JAR_NAME="client.jar"
 echo "Compiling client !"
 if [ -d $BUILD_FOLDER ]
 then

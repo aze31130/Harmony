@@ -202,8 +202,6 @@ public class Server {
 			ServerSocket ss = new ServerSocket(this.serverPort);
 			while(this.running) {
 				Socket s = ss.accept();
-				
-				System.out.println("Accepting socket on " + s.getRemoteSocketAddress());
 
 				//Check if the server is full
 				if (this.onlineUsers.size() >= this.maxMembers) {
