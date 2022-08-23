@@ -22,6 +22,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 public class Cryptography {
 	/*
@@ -104,6 +105,13 @@ public class Cryptography {
 			invalidKey.printStackTrace();
 		}
 		return null;
+	}
+
+	/*
+	 * Load a symmetric key from byte array
+	 */
+	public static SecretKey loadSymmetricKey(byte[] symmetricKey) {
+		return new SecretKeySpec(symmetricKey, 0, symmetricKey.length, "AES");
 	}
 
 	/*
