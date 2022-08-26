@@ -1,4 +1,5 @@
 import models.Server;
+import views.MainMenu;
 
 public class Main {
 	/*
@@ -10,9 +11,6 @@ public class Main {
 		//Read config file (language, server list, preferences)
 
 		//Displays the main menu and waits for user inputs
-
-		//Connection test
-		Server harmony = new Server("Harmony", "127.0.0.1", 3378);
-		harmony.connect();
+		MainMenu menu = new MainMenu();
 	}
 }

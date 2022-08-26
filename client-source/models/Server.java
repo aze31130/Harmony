@@ -8,7 +8,6 @@ import java.security.KeyPair;
 import java.security.PublicKey;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import cryptography.Cryptography;
 
@@ -60,7 +59,7 @@ public class Server {
 		}
 	}
 
-    public void connect() {
+    public Boolean connect() {
         System.out.println("Connecting to " + this.ip + ":" + this.port);
         try {
             this.socket = new Socket(this.ip, this.port);
@@ -68,13 +67,15 @@ public class Server {
 			this.output = new DataOutputStream(this.socket.getOutputStream());
 
             this.handshake();
-
+            
+            return true;
         } catch (IOException e) {
             System.err.println("Cannot connect to host " + this.ip);
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     public void handshake() throws IllegalAccessError, IOException {
@@ -85,7 +86,7 @@ public class Server {
         byte[] aesKey = this.receive();
         byte[] decryptedkey = Cryptography.decrypt(this.tempKeys.getPrivate(), aesKey);
         
-        this.symmetricKey = new SecretKeySpec(decryptedkey, 0, decryptedkey.length, "AES");
+        this.symmetricKey = Cryptography.loadSymmetricKey(decryptedkey);
         System.out.println(symmetricKey.hashCode());
         System.out.println(new String(symmetricKey.getEncoded()));
     }
