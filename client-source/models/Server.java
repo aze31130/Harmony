@@ -16,6 +16,7 @@ public class Server {
     public String ip;
     public int port;
 
+    public Thread thread;
     public Socket socket;
     public DataInputStream input;
     public DataOutputStream output;
@@ -26,6 +27,7 @@ public class Server {
     public SecretKey symmetricKey;
 
     public Server(String name, String ip, int port) {
+        this.thread = new Thread();
         this.name = name;
         this.ip = ip;
         this.port = port;
@@ -79,7 +81,7 @@ public class Server {
     }
 
     public void handshake() throws IllegalAccessError, IOException {
-        this.tempKeys = Cryptography.generateKeyPair(2048);
+        this.tempKeys = Cryptography.generateKeyPair(4096);
 
         this.send(tempKeys.getPublic().getEncoded());
 
@@ -87,6 +89,10 @@ public class Server {
         byte[] decryptedkey = Cryptography.decrypt(this.tempKeys.getPrivate(), aesKey);
         
         this.symmetricKey = Cryptography.loadSymmetricKey(decryptedkey);
+
+        //Once the connection is esthablished and the symmetric key is generated, we can authenticate the client
+
+        //For instance, we can send a password or a public key encrypted with the symmetric key
         System.out.println(symmetricKey.hashCode());
         System.out.println(new String(symmetricKey.getEncoded()));
     }

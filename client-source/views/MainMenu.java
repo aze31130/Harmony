@@ -1,15 +1,19 @@
 package views;
 
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.net.URL;
 
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 
 import models.Server;
 
 public class MainMenu extends JFrame implements Action {
 	public JButton connect;
+	public JEditorPane pane;
 
     public MainMenu() {
 		this.setTitle("Harmony client");
@@ -24,7 +28,7 @@ public class MainMenu extends JFrame implements Action {
 		connect.setText("Connect to Harmony");
 		connect.setEnabled(true);
 		this.add(connect);
-		
+
 		// ImageIcon icon = new ImageIcon();
 		// window.setIconImage(icon.getImage());
     }
