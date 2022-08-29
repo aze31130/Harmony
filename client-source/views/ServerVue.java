@@ -32,20 +32,21 @@ public class ServerVue extends JFrame implements Action,Runnable {
 		this.setVisible(true);
 		this.setLocationRelativeTo(null);
 		this.setLayout(null);
+		this.setResizable(false);
 		this.setSize(1280, 720);
-
+		
 		this.messageArea = new JTextArea();
-		this.messageArea.setBounds(50, 0, 150, 50);
+		this.messageArea.setBounds(0, 0, 300, 600);
 		this.messageArea.setBackground(new Color(250, 250, 0));
-
+		this.messageArea.setEditable(false);
 
 		this.messageInput = new JTextField();
-		this.messageInput.setBounds(250, 0, 150, 50);
+		this.messageInput.setBounds(0, 620, 150, 50);
 		this.messageInput.setBackground(new Color(250, 0, 250));
-		
+		this.messageInput.setText("Your message here");
 		
 		this.sendButton = new JButton();
-		this.sendButton.setBounds(100, 100, 100, 50);
+		this.sendButton.setBounds(250, 620, 100, 50);
 		this.sendButton.setActionCommand("sendMessage");
 		this.sendButton.setBackground(new Color(125, 70, 42));
 		this.sendButton.setAction(this);
@@ -53,14 +54,11 @@ public class ServerVue extends JFrame implements Action,Runnable {
 		this.add(messageArea);
 		this.add(messageInput);
 		this.add(this.sendButton);
-
-		this.messageInput.setText("arg0");
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		String message = this.messageInput.getText();
-		System.out.println("Sending: " + message);
 
 		JSONObject JSONMessage = new JSONObject();
 		JSONMessage.put("message", message);
@@ -69,6 +67,8 @@ public class ServerVue extends JFrame implements Action,Runnable {
 		this.server.send(encryptedMessage);
 
 		this.messageInput.setText("");
+		String existingChat = this.messageArea.getText();
+		this.messageArea.setText(existingChat + "\n<You>: " + message);
 	}
 
 	@Override
@@ -93,7 +93,8 @@ public class ServerVue extends JFrame implements Action,Runnable {
 
 				String message = new String(decryptedMessage);
 
-				System.out.println(message);
+				String existingChat = this.messageArea.getText();
+				this.messageArea.setText(existingChat + "\n<Server>: " + message);
 			}
 		} catch (IllegalArgumentException e) {
 			System.err.println("Server sent invalid size, dropping message.");
