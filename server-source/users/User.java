@@ -2,6 +2,9 @@ package users;
 
 import java.security.PublicKey;
 import java.time.LocalDate;
+import java.util.List;
+
+import items.Item;
 
 public class User {
     public int id;
@@ -10,6 +13,8 @@ public class User {
     public Privilege permissions;
     public String picture;
     public String email;
+
+    public List<Item> inventory;
     public LocalDate created;
     public LocalDate lastLogin;
     public int level;
