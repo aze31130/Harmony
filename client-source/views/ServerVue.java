@@ -32,7 +32,7 @@ public class ServerVue extends JFrame implements Action,Runnable {
 		this.setVisible(true);
 		this.setLocationRelativeTo(null);
 		this.setLayout(null);
-		this.setResizable(false);
+		this.setResizable(true);
 		this.setSize(1280, 720);
 		
 		this.messageArea = new JTextArea();

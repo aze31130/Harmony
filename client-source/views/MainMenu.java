@@ -1,19 +1,18 @@
 package views;
 
 import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.net.URL;
-
 import javax.swing.Action;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 
 import models.Server;
 
 public class MainMenu extends JFrame implements Action {
+	
+	public JButton addServer;
+	public JButton editServer;
+	public JButton deleteServer;
 	public JButton connect;
-	public JEditorPane pane;
 
     public MainMenu() {
 		this.setTitle("Harmony client");
@@ -28,23 +27,22 @@ public class MainMenu extends JFrame implements Action {
 		connect.setText("Connect to Harmony");
 		connect.setEnabled(true);
 		this.add(connect);
-
-		// ImageIcon icon = new ImageIcon();
-		// window.setIconImage(icon.getImage());
     }
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
+		String serverName = "Harmony";
+		String host = "127.0.0.1";
+		int port = 3378;
 		if (event.getSource() == this.connect) {
 			connect.setEnabled(false);
-			System.out.println("Connecting to Harmony");
-			Server harmony = new Server("Harmony", "127.0.0.1", 3378);
+			Server harmony = new Server(serverName, host, port);
 			if (harmony.connect()) {
 				//Change to server window
 				this.dispose();
 				new ServerVue(harmony);
 			} else {
-				System.err.println("Cannot connect to host 127.0.0.1 on port 3378.");
+				System.err.println("Cannot connect to host " + host + " on port " + port + ".");
 				connect.setEnabled(true);
 			}
 		}
