@@ -5,22 +5,24 @@ import events.MessageReceiveEvent;
 import items.WelcomeApple;
 import users.User;
 
-public class HelloWorld extends Achievement {
+public class HelloWorld implements Achievement {
 
-    public HelloWorld() {
-        super();
-    }
+	public HelloWorld() {
+	}
 
-    @Override
-    public Boolean trigger(Event event) {
-        MessageReceiveEvent messageEvent = (MessageReceiveEvent) event;
-        return messageEvent.message.content.equalsIgnoreCase("Hello World !");
-    }
+	@Override
+	public Boolean trigger(Event event) {
+		MessageReceiveEvent messageEvent = (MessageReceiveEvent) event;
+		return messageEvent.message.content.equalsIgnoreCase("Hello World !");
+	}
 
-    @Override
-    public void reward(User user) {
-        //Instanciate the item
-        WelcomeApple reward = new WelcomeApple();
-        user.inventory.add(reward);
-    }
+	@Override
+	public void reward(User user) {
+		//Instanciate the reward item
+		WelcomeApple reward = new WelcomeApple();
+		user.inventory.add(reward);
+
+		user.addExp(10);
+		user.addMoney(1);
+	}
 }

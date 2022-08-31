@@ -1,8 +1,8 @@
 package users;
 
 public enum BanType {
-    TOTAL,
-    IP,
-    ACCOUNT,
-    SHADOW
+	TOTAL,
+	IP,
+	ACCOUNT,
+	SHADOW
 }

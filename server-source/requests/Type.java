@@ -1,9 +1,9 @@
 package requests;
 
 public enum Type {
-    REQUEST,
-    COMMAND,
-    RESPONSE,
-    NOTIFICATION,
-    ERROR
+	REQUEST,
+	COMMAND,
+	RESPONSE,
+	NOTIFICATION,
+	ERROR
 }
