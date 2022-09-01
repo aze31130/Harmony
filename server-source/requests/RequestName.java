@@ -1,6 +1,6 @@
 package requests;
 
-public enum Name {
+public enum RequestName {
 	GET_USERS,
 	GET_CHANNELS,
 	GET_COMMANDS,

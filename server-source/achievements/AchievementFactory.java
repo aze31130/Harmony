@@ -11,6 +11,9 @@ public class AchievementFactory {
 		List<Achievement> achievements = new ArrayList<Achievement>();
 		
 		achievements.add(new HelloWorld());
+		achievements.add(new DoIt());
+		achievements.add(new CircleOfLife());
+		achievements.add(new WinterIsComing());
 
 		return achievements;
 	}

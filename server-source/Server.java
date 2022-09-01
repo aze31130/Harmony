@@ -18,6 +18,7 @@ import commands.Command;
 import commands.Help;
 import commands.Version;
 import cryptography.Cryptography;
+import events.EventManager;
 import json.JSONObject;
 import plugins.Plugin;
 import plugins.PluginPriority;
@@ -44,6 +45,8 @@ public class Server {
 
 	public String banListFileName;
 
+	public EventManager eventManager;
+
 	public List<Command> commands;
 	public List<Ban> banList;
 	public List<Plugin> plugins;
@@ -65,6 +68,9 @@ public class Server {
 
 		//Initialize list of online people
 		this.onlineUsers = new ArrayList<ClientHandler>();
+
+		//Initialize the event manager
+		this.eventManager = new EventManager();
 
 		//Loads plugins
 		this.loadPlugins();

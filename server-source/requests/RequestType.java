@@ -1,6 +1,6 @@
 package requests;
 
-public enum Type {
+public enum RequestType {
 	REQUEST,
 	COMMAND,
 	RESPONSE,

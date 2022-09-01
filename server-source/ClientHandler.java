@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.PublicKey;
+
 import javax.crypto.SecretKey;
 import javax.management.openmbean.InvalidKeyException;
 
@@ -15,6 +16,8 @@ import json.JSONException;
 import json.JSONObject;
 import json.JSONTokener;
 import plugins.Plugin;
+import requests.RequestName;
+import requests.RequestType;
 import users.Ban;
 import users.BanType;
 import users.User;
@@ -139,52 +142,65 @@ public class ClientHandler implements Runnable {
 				byte[] bytePlainText = Cryptography.decrypt(this.symetricKey, rawStringReceived);
 				String decryptedMessage = new String(bytePlainText);
 
+				//Debug print to remove later
 				System.out.println(decryptedMessage);
 
 				//Parsing received json
 				JSONTokener parser = new JSONTokener(decryptedMessage);
 
-				JSONObject object = new JSONObject(parser);
+				JSONObject request = new JSONObject(parser);
+
+				//At this point, the json should follow the standard and have the 4 mandatory fields
+				//id, type, name and data
+				String id = request.getString("id");
+				RequestType type = request.getEnum(RequestType.class, "type");
+				RequestName name = request.getEnum(RequestName.class, "name");
+				JSONObject data = request.getJSONObject("data");
+
+				//Send the event to the event manager
+				Server.getInstance().eventManager.triggerEvent(type, name, data);
+
+				//We can ignore the next part because the events will handle what the server should do depending on the event.
 
 				//if client is sending a message
-				if (object.has("message")) {
-					String message = object.getString("message");
-					System.out.println("Received message: " + message);
-					for(Plugin p : Server.getInstance().plugins) {
-						try {
-							Object o = p.pluginClass.getDeclaredConstructor().newInstance();
-							Method m = p.pluginClass.getMethod("onMessage", String.class);
-							m.invoke(o, message);
-						} catch (InstantiationException e) {
-							e.printStackTrace();
-						} catch (IllegalAccessException e) {
-							e.printStackTrace();
-						} catch (IllegalArgumentException e) {
-							e.printStackTrace();
-						} catch (InvocationTargetException e) {
-							e.printStackTrace();
-						} catch (NoSuchMethodException e) {
-							e.printStackTrace();
-						} catch (SecurityException e) {
-							e.printStackTrace();
-						}
-					}
+				// if (request.has("message")) {
+				// 	String message = request.getString("message");
+				// 	System.out.println("Received message: " + message);
+				// 	for(Plugin p : Server.getInstance().plugins) {
+				// 		try {
+				// 			Object o = p.pluginClass.getDeclaredConstructor().newInstance();
+				// 			Method m = p.pluginClass.getMethod("onMessage", String.class);
+				// 			m.invoke(o, message);
+				// 		} catch (InstantiationException e) {
+				// 			e.printStackTrace();
+				// 		} catch (IllegalAccessException e) {
+				// 			e.printStackTrace();
+				// 		} catch (IllegalArgumentException e) {
+				// 			e.printStackTrace();
+				// 		} catch (InvocationTargetException e) {
+				// 			e.printStackTrace();
+				// 		} catch (NoSuchMethodException e) {
+				// 			e.printStackTrace();
+				// 		} catch (SecurityException e) {
+				// 			e.printStackTrace();
+				// 		}
+				// 	}
 
-					//Broadcast it to other clients
-					for (ClientHandler client : Server.getInstance().onlineUsers) {
-						if (client != this){
-							byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, message.getBytes());
-							client.send(messageEncrypted);
-						}
-					}
-					continue;
-				}
+				// 	//Broadcast it to other clients
+				// 	for (ClientHandler client : Server.getInstance().onlineUsers) {
+				// 		if (client != this){
+				// 			byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, message.getBytes());
+				// 			client.send(messageEncrypted);
+				// 		}
+				// 	}
+				// 	continue;
+				// }
 
-				//if client is sending a command action
-				if (object.has("command")) {
-					System.out.println("Received command: " + object.getString("command"));
-					continue;
-				}
+				// //if client is sending a command action
+				// if (request.has("command")) {
+				// 	System.out.println("Received command: " + request.getString("command"));
+				// 	continue;
+				// }
 			} catch(IOException e) {
 				Server.getInstance().onlineUsers.remove(this);
 				System.out.println("Client disconnected !");

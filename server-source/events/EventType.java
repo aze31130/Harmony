@@ -1,9 +1,0 @@
-package events;
-
-public enum EventType {
-	BAN_EVENT,
-	SERVER_RELOAD,
-	SERVER_SHUTDOWN,
-	USER_CONNECT,
-	USER_DISCONNECT
-}
