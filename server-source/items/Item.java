@@ -2,8 +2,6 @@ package items;
 
 import java.util.Date;
 
-import users.User;
-
 public abstract class Item {
 	public String name;
 	public String description;
@@ -15,6 +13,7 @@ public abstract class Item {
 	public String crafterName;
 	public Boolean isTradable;
 	public Rarity rarity;
+	public int sellValue;
 
 	public Boolean usable;
 
@@ -25,6 +24,4 @@ public abstract class Item {
 		this.requiredLevel = requiredLevel;
 		this.lore = lore;
 	}
-
-	public abstract void use(User user);
 }

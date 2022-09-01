@@ -9,5 +9,6 @@ public enum Rarity {
 	FABLED,
 	MYTHICAL,
 	TRANSCENDENT,
-	UNIQUE
+	UNIQUE,
+	ADMIN_TOOL
 }

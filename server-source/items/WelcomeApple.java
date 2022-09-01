@@ -2,7 +2,7 @@ package items;
 
 import users.User;
 
-public class WelcomeApple extends Item {
+public class WelcomeApple extends Item implements UsableItem {
 
 	public WelcomeApple() {
 		super("Welcome Apple",
