@@ -103,7 +103,7 @@ public class ServerView extends JFrame {
 
 				String message = view.message.getText();
 				view.printToChat(message);
-
+				view.message.setText("");
 				JSONObject jsonPayload = new JSONObject();
 				JSONObject messagePayload = new JSONObject();
 
