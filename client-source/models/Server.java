@@ -27,8 +27,6 @@ public class Server implements Runnable {
     public Thread receiveThread;
 
     public Server(String ip, int port) {
-        this.receiveThread = new Thread(this);
-        this.receiveThread.start();
         this.ip = ip;
         this.port = port;
     }
@@ -69,6 +67,8 @@ public class Server implements Runnable {
 			this.output = new DataOutputStream(this.socket.getOutputStream());
 
             this.handshake();
+            this.receiveThread = new Thread(this);
+            this.receiveThread.start();
             
             return true;
         } catch (IOException e) {

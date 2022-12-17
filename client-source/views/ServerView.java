@@ -94,7 +94,7 @@ public class ServerView extends JFrame {
 		 * Init message container
 		 */
 		this.messageContainer = new JPanel();
-		this.message = new JTextField("Your message here");
+		this.message = new JTextField("Your message here", 20);
 		this.sendMessage = new JButton("Send");
 		this.sendMessage.addActionListener(new ActionListener() {
 			@Override
@@ -102,6 +102,7 @@ public class ServerView extends JFrame {
 				ServerView view = ServerView.getInstance();
 
 				String message = view.message.getText();
+				view.printToChat(message);
 
 				JSONObject jsonPayload = new JSONObject();
 				JSONObject messagePayload = new JSONObject();
