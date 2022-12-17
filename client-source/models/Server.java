@@ -12,7 +12,6 @@ import javax.crypto.SecretKey;
 import cryptography.Cryptography;
 
 public class Server {
-    public String name;
     public String ip;
     public int port;
 
@@ -26,9 +25,8 @@ public class Server {
     public KeyPair tempKeys;
     public SecretKey symmetricKey;
 
-    public Server(String name, String ip, int port) {
+    public Server(String ip, int port) {
         this.thread = new Thread();
-        this.name = name;
         this.ip = ip;
         this.port = port;
     }

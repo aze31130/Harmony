@@ -1,95 +1,122 @@
 package views;
 
-import java.awt.Color;
-import java.awt.event.ActionEvent;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionListener;
 import java.io.IOException;
-
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JTextArea;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import java.awt.event.ActionEvent;
+import javax.swing.JTextPane;
 
 import cryptography.Cryptography;
-import json.JSONObject;
 import models.Server;
 
-public class ServerVue extends JFrame implements Action,Runnable {
+public class ServerVue extends JFrame implements Runnable {
+
+	public JPanel connectionContainer;
+	public JTextField serverIp;
+	public JTextField serverPort;
+	public JButton serverConnect;
+
+	public JPanel messageContainer;
+	public JTextField message;
+	public JButton sendMessage;
+
+	public JPanel chatContainer;
+	public JScrollPane scrollBar;
+	public JTextPane chatContent;
+
 	public Server server;
 	public Thread receiveSignalsThread;
 
-	public JTextArea messageArea;
-
-	public JTextField messageInput;
-	public JButton sendButton;
 	
-	public ServerVue(Server server) {
-		this.server = server;
-		this.receiveSignalsThread = new Thread(this);
-		this.receiveSignalsThread.start();
-		this.setTitle("Harmony client");
+	public ServerVue() {
+		this.setTitle("Harmony client 0.0.1");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
-		this.setLocationRelativeTo(null);
-		this.setLayout(null);
-		this.setResizable(true);
-		this.setSize(1280, 720);
+		this.setLayout(new BorderLayout());
+
+		/*
+		 * Init connection container
+		 */
+		this.connectionContainer = new JPanel();
+
+		this.serverIp = new JTextField("server ip", 15);
+		this.serverPort = new JTextField("server port", 8);
+		this.serverConnect = new JButton("Connect");
+		this.serverConnect.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String ip = serverIp.getText();
+				Integer port = Integer.parseInt(serverPort.getText());
+				Server s = new Server(ip, port);
+				s.connect();
+
+				//TODO
+			}
+		});
+
+		this.connectionContainer.add(this.serverIp);
+		this.connectionContainer.add(this.serverPort);
+		this.connectionContainer.add(this.serverConnect);
+
+		this.add(this.connectionContainer, BorderLayout.NORTH);
+
+		/*
+		 * Init message container
+		 */
+		this.messageContainer = new JPanel();
+		this.message = new JTextField("Your message here");
+		this.sendMessage = new JButton("Send");
+		this.sendMessage.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String content = "";
+
+				//TODO
+			}
+		});
+
+		this.messageContainer.add(this.message);
+		this.messageContainer.add(this.sendMessage);
+
+		this.add(this.messageContainer, BorderLayout.SOUTH);
+
+		/*
+		 * Init chat container
+		 */
+		this.chatContainer = new JPanel();
 		
-		this.messageArea = new JTextArea();
-		this.messageArea.setBounds(0, 0, 300, 600);
-		this.messageArea.setBackground(new Color(250, 250, 0));
-		this.messageArea.setEditable(false);
-
-		this.messageInput = new JTextField();
-		this.messageInput.setBounds(0, 620, 150, 50);
-		this.messageInput.setBackground(new Color(250, 0, 250));
-		this.messageInput.setText("Your message here");
+		this.chatContent = new JTextPane();
+		this.chatContent.setText("Welcome to Harmony, you can connect using the button on top. Have fun !");
+		this.chatContent.setEditable(false);
+		this.chatContent.setPreferredSize(new Dimension(800, 400));
+		this.chatContainer.add(this.chatContent);
+		this.scrollBar = new JScrollPane(this.chatContent, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		this.scrollBar.getVerticalScrollBar().setUnitIncrement(23);
 		
-		this.sendButton = new JButton();
-		this.sendButton.setBounds(250, 620, 100, 50);
-		this.sendButton.setActionCommand("sendMessage");
-		this.sendButton.setBackground(new Color(125, 70, 42));
-		this.sendButton.setAction(this);
-
-		this.add(messageArea);
-		this.add(messageInput);
-		this.add(this.sendButton);
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		String message = this.messageInput.getText();
-
-		JSONObject JSONMessage = new JSONObject();
-		JSONObject JSONMessageContent = new JSONObject();
-		JSONMessageContent.put("message", message);
-
-		JSONMessage.put("id", "0");
-		JSONMessage.put("type", "REQUEST");
-		JSONMessage.put("name", "CREATE_MESSAGE");
-		JSONMessage.put("data", JSONMessageContent);
-
-		byte[] encryptedMessage = Cryptography.encrypt(this.server.symmetricKey, JSONMessage.toString().getBytes());
-
-		this.server.send(encryptedMessage);
-
-		this.messageInput.setText("");
-		String existingChat = this.messageArea.getText();
-		this.messageArea.setText(existingChat + "\n<You>: " + message);
-	}
-
-	@Override
-	public Object getValue(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void putValue(String arg0, Object arg1) {
-		// TODO Auto-generated method stub
+		this.add(this.scrollBar, BorderLayout.CENTER);
 		
+		/*this.server = server;
+		this.receiveSignalsThread = new Thread(this);
+		this.receiveSignalsThread.start();
+		*/
+
+		/*
+		 * Compress everything and set a better resolution
+		 */
+		this.pack();
 	}
 
+	public void printToChat(String message) {
+
+	}
+
+	
 	@Override
 	public void run() {
 		try {
@@ -100,8 +127,8 @@ public class ServerVue extends JFrame implements Action,Runnable {
 
 				String message = new String(decryptedMessage);
 
-				String existingChat = this.messageArea.getText();
-				this.messageArea.setText(existingChat + "\n<Server>: " + message);
+				//String existingChat = this.messageArea.getText();
+				//this.messageArea.setText(existingChat + "\n<Server>: " + message);
 			}
 		} catch (IllegalArgumentException e) {
 			System.err.println("Server sent invalid size, dropping message.");
