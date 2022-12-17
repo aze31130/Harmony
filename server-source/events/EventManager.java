@@ -14,11 +14,13 @@ public class EventManager {
 	public EventManager() {
 		//Instanciate all events
 		this.events = new ArrayList<Event>();
+
+		this.events.add(new MessageReceiveEvent());
 	}
 
 	public void triggerEvent(RequestType requestType, RequestName requestName, JSONObject data) {
 		for (Event event : this.events) {
-			if (event.type == requestType && event.name.equals(requestName)) {
+			if (event.type == requestType && event.name == requestName) {
 				event.fire(data);
 				return;
 			}

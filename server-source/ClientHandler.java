@@ -1,8 +1,10 @@
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.PublicKey;
@@ -15,7 +17,6 @@ import exceptions.ClientReceiveException;
 import json.JSONException;
 import json.JSONObject;
 import json.JSONTokener;
-import plugins.Plugin;
 import requests.RequestName;
 import requests.RequestType;
 import users.Ban;
@@ -50,7 +51,7 @@ public class ClientHandler implements Runnable {
 	 */
 	public byte[] receive() throws ClientReceiveException, IOException {
 		//Getting client's message length
-		int messageLength = Integer.parseInt(this.input.readUTF());
+		int messageLength = this.input.readInt();
 
 		//If message length is invalid
 		if ((messageLength < 0) || (messageLength > 10000000))
@@ -64,10 +65,10 @@ public class ClientHandler implements Runnable {
 	/*
 	 * This methods sends to the current client a byte array
 	 */
-	public void send(byte[] message) {
+	public void send(byte[] data) {
 		try {
-			this.output.writeUTF(Integer.toString(message.length));
-			this.output.write(message);
+			this.output.writeInt(data.length);
+			this.output.write(data);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -115,6 +116,7 @@ public class ClientHandler implements Runnable {
 			this.send(encryptedSymetricKey);
 
 			//Handshake is done
+			
 			//If that procedure last for more than 10 seconds, kill the handler
 			//TODO
 		} catch (ClientReceiveException wrongBufferSize) {
@@ -152,20 +154,20 @@ public class ClientHandler implements Runnable {
 
 				//At this point, the json should follow the standard and have the 4 mandatory fields
 				//id, type, name and data
+				/*
 				String id = request.getString("id");
 				RequestType type = request.getEnum(RequestType.class, "type");
 				RequestName name = request.getEnum(RequestName.class, "name");
 				JSONObject data = request.getJSONObject("data");
+				*/
 
 				//Send the event to the event manager
-				Server.getInstance().eventManager.triggerEvent(type, name, data);
+				//Server.getInstance().eventManager.triggerEvent(type, name, data);
 
 				//We can ignore the next part because the events will handle what the server should do depending on the event.
-
+				String message = request.getString("message");
+				System.out.println("Received message: " + message);
 				//if client is sending a message
-				// if (request.has("message")) {
-				// 	String message = request.getString("message");
-				// 	System.out.println("Received message: " + message);
 				// 	for(Plugin p : Server.getInstance().plugins) {
 				// 		try {
 				// 			Object o = p.pluginClass.getDeclaredConstructor().newInstance();
@@ -186,15 +188,14 @@ public class ClientHandler implements Runnable {
 				// 		}
 				// 	}
 
-				// 	//Broadcast it to other clients
-				// 	for (ClientHandler client : Server.getInstance().onlineUsers) {
-				// 		if (client != this){
-				// 			byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, message.getBytes());
-				// 			client.send(messageEncrypted);
-				// 		}
-				// 	}
-				// 	continue;
-				// }
+				//Broadcast it to other clients
+				for (ClientHandler client : Server.getInstance().onlineUsers) {
+					if (client != this){
+						byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, message.getBytes());
+						client.send(messageEncrypted);
+					}
+				}
+				continue;
 
 				// //if client is sending a command action
 				// if (request.has("command")) {

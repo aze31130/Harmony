@@ -73,7 +73,7 @@ public class Server {
 		this.eventManager = new EventManager();
 
 		//Loads plugins
-		this.loadPlugins();
+		//this.loadPlugins();
 	}
 
 	/*
@@ -209,11 +209,12 @@ public class Server {
 			while(this.running) {
 				Socket s = ss.accept();
 
-				//Check if the server is full
+				/*
+				 * Check if the server is full.
+				 * If it is, an client-sided error message will be displayed and the server
+				 * will instantly kills the handler to save ressources
+				 */
 				if (this.onlineUsers.size() >= this.maxMembers) {
-					System.out.println("Server full !");
-					//Error message "Sorry, the server is full" will be client sided
-					//Instantly kills the handler to save ressources
 					s.close();
 					continue;
 				}

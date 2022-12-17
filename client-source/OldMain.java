@@ -27,7 +27,7 @@ public class OldMain {
 
 	public static SecretKey symmetricKey = null;
 
-	public static void old_main() {
+	public static void start() {
 		System.out.println("Starting client on CLI mode !");
 
 		keyPair = Cryptography.generateKeyPair(512);

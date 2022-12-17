@@ -38,7 +38,7 @@ public class Server {
 	 */
 	public byte[] receive() throws IllegalArgumentException, IOException {
 		//Getting server's message length
-		int messageLength = Integer.parseInt(this.input.readUTF());
+		int messageLength = this.input.readInt();
 
 		//If message length is invalid
 		if ((messageLength < 0) || (messageLength > 10000000))
@@ -52,10 +52,10 @@ public class Server {
 	/*
 	 * This methods sends to the current server a byte array
 	 */
-	public void send(byte[] message) {
+	public void send(byte[] data) {
 		try {
-			this.output.writeUTF(Integer.toString(message.length));
-			this.output.write(message);
+			this.output.writeInt(data.length);
+			this.output.write(data);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -82,9 +82,7 @@ public class Server {
 
     public void handshake() throws IllegalAccessError, IOException {
         this.tempKeys = Cryptography.generateKeyPair(4096);
-
         this.send(tempKeys.getPublic().getEncoded());
-
         byte[] aesKey = this.receive();
         byte[] decryptedkey = Cryptography.decrypt(this.tempKeys.getPrivate(), aesKey);
         

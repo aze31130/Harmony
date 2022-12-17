@@ -11,4 +11,8 @@ public class Message {
 	public Boolean isEdited;
 	public Boolean isPinned;
 	public Boolean isSigned;
+
+	public Message() {
+		
+	}
 }
