@@ -242,8 +242,9 @@ public class Server {
 				}
 
 				ClientHandler ch = new ClientHandler(s);
+
+				System.out.println("Client connected !" + s.getRemoteSocketAddress());
 				this.onlineUsers.add(ch);
-				System.out.println("Client connected !");
 			}
 			ss.close();
 		} catch(IOException e) {

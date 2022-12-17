@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.PublicKey;
-
 import javax.crypto.SecretKey;
 import javax.management.openmbean.InvalidKeyException;
-
 import cryptography.Cryptography;
 import exceptions.ClientReceiveException;
 import json.JSONException;
@@ -132,6 +130,14 @@ public class ClientHandler implements Runnable {
 	public void run() {
 		this.isLoggedIn = handshake();
 
+		if (this.isLoggedIn) {
+			for (ClientHandler client : Server.getInstance().onlineUsers) {
+				String connectionMessage = "User " + this.user.hashCode() + " has connected !";
+				byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, connectionMessage.getBytes());
+				client.send(messageEncrypted);
+			}
+		}
+
 		while(this.isLoggedIn) {
 			try {
 				byte[] rawStringReceived = this.receive();
@@ -149,14 +155,14 @@ public class ClientHandler implements Runnable {
 				JSONObject request = new JSONObject(parser);
 
 				//At this point, the json should follow the standard and have the 4 mandatory fields
-				//id, type, name and data
+				//id, user, type, name, data
 				String id = request.getString("id");
 				RequestType type = request.getEnum(RequestType.class, "type");
 				RequestName name = request.getEnum(RequestName.class, "name");
 				JSONObject data = request.getJSONObject("data");
 
 				//Send the event to the event manager
-				Server.getInstance().eventManager.triggerEvent(type, name, data);
+				Server.getInstance().eventManager.triggerEvent(user, type, name, data);
 
 				
 				//if client is sending a message
@@ -190,6 +196,11 @@ public class ClientHandler implements Runnable {
 			} catch(IOException e) {
 				Server.getInstance().onlineUsers.remove(this);
 				System.out.println("Client disconnected !");
+				for (ClientHandler client : Server.getInstance().onlineUsers) {
+					String connectionMessage = "User " + this.user.hashCode() + " has disconnected !";
+					byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, connectionMessage.getBytes());
+					client.send(messageEncrypted);
+				}
 				break;
 			} catch(JSONException jsonParseFailed) {
 				System.err.println("Error in user input, cannot parse json !");

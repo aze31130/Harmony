@@ -6,6 +6,7 @@ import java.util.List;
 import json.JSONObject;
 import requests.RequestName;
 import requests.RequestType;
+import users.User;
 
 public class EventManager {
 
@@ -20,10 +21,10 @@ public class EventManager {
 		this.events.add(new MessageReceiveEvent());
 	}
 
-	public void triggerEvent(RequestType requestType, RequestName requestName, JSONObject data) {
+	public void triggerEvent(User user, RequestType requestType, RequestName requestName, JSONObject data) {
 		for (Event event : this.events) {
 			if (event.type == requestType && event.name == requestName) {
-				event.fire(data);
+				event.fire(user, data);
 				return;
 			}
 		}

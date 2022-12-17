@@ -13,7 +13,8 @@ public class HelloWorld implements Achievement {
 	@Override
 	public Boolean trigger(Event event) {
 		MessageReceiveEvent messageEvent = (MessageReceiveEvent) event;
-		return messageEvent.message.content.equalsIgnoreCase("Hello World !");
+		//return messageEvent.message.content.equalsIgnoreCase("Hello World !");
+		return false;
 	}
 
 	@Override

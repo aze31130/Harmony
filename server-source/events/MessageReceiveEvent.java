@@ -19,9 +19,9 @@ import users.User;
 
 public class MessageReceiveEvent extends Event {
 
-	public TextChannel channel;
-	public Message message;
-	public User author;
+	// public TextChannel channel;
+	// public Message message;
+	// public User author;
 
 	public MessageReceiveEvent() {
 		super(RequestType.REQUEST, RequestName.CREATE_MESSAGE);
@@ -34,21 +34,25 @@ public class MessageReceiveEvent extends Event {
 	 * @String: message (the content of the message)
 	 */
 	@Override
-	public void fire(JSONObject data) {
+	public void fire(User user, JSONObject data) {
 		/*
 		 * When the server receives a message, it broadcast it to every other clients
 		 */
 		Server server = Server.getInstance();
 		String message = data.getString("message");
+		message = "<User " + user.hashCode() + ">" + message;
 
 		for (ClientHandler client : server.onlineUsers) {
-			byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, message.getBytes());
-			client.send(messageEncrypted);
+			if (client.user != user) {
+				byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, message.getBytes());
+				client.send(messageEncrypted);
+			}
 		}
 
 		/*
 		 * Discord relay, send the message by doing an HTTP request to a given webhook
 		 */
+		message = message.replace("\"", "\'");
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder(URI.create(server.discordWebhookUrl))
 			.header("Content-type", "application/json")
