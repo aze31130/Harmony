@@ -10,12 +10,12 @@ import java.security.PublicKey;
 import javax.crypto.SecretKey;
 
 import cryptography.Cryptography;
+import views.ServerView;
 
-public class Server {
+public class Server implements Runnable {
     public String ip;
     public int port;
 
-    public Thread thread;
     public Socket socket;
     public DataInputStream input;
     public DataOutputStream output;
@@ -24,9 +24,11 @@ public class Server {
     public KeyPair clientKeys;
     public KeyPair tempKeys;
     public SecretKey symmetricKey;
+    public Thread receiveThread;
 
     public Server(String ip, int port) {
-        this.thread = new Thread();
+        this.receiveThread = new Thread(this);
+        this.receiveThread.start();
         this.ip = ip;
         this.port = port;
     }
@@ -92,4 +94,26 @@ public class Server {
         System.out.println(symmetricKey.hashCode());
         System.out.println(new String(symmetricKey.getEncoded()));
     }
+
+	@Override
+	public void run() {
+		try {
+            ServerView view = ServerView.getInstance();
+			while(true) {
+
+				byte[] receiveRaw = view.server.receive();
+
+				byte[] decryptedMessage = Cryptography.decrypt(view.server.symmetricKey, receiveRaw);
+
+				String message = new String(decryptedMessage);
+
+				view.printToChat(message);
+			}
+		} catch (IllegalArgumentException e) {
+			System.err.println("Server sent invalid size, dropping message.");
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }

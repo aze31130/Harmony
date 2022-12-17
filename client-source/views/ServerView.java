@@ -13,9 +13,13 @@ import java.awt.event.ActionEvent;
 import javax.swing.JTextPane;
 
 import cryptography.Cryptography;
+import json.JSONObject;
 import models.Server;
 
-public class ServerVue extends JFrame implements Runnable {
+public class ServerView extends JFrame {
+
+	//Singleton design pattern
+	private static ServerView instance = null;
 
 	public JPanel connectionContainer;
 	public JTextField serverIp;
@@ -31,10 +35,17 @@ public class ServerVue extends JFrame implements Runnable {
 	public JTextPane chatContent;
 
 	public Server server;
-	public Thread receiveSignalsThread;
 
-	
-	public ServerVue() {
+	/*
+	 * Singleton design pattern, returns the current view instance
+	 */
+	public static synchronized ServerView getInstance() {
+		if (instance == null)
+			instance = new ServerView();
+		return instance;
+	}
+
+	private ServerView() {
 		this.setTitle("Harmony client 0.0.1");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
@@ -45,18 +56,31 @@ public class ServerVue extends JFrame implements Runnable {
 		 */
 		this.connectionContainer = new JPanel();
 
-		this.serverIp = new JTextField("server ip", 15);
-		this.serverPort = new JTextField("server port", 8);
+		this.serverIp = new JTextField("127.0.0.1", 15);
+		this.serverPort = new JTextField("3378", 8);
 		this.serverConnect = new JButton("Connect");
 		this.serverConnect.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String ip = serverIp.getText();
-				Integer port = Integer.parseInt(serverPort.getText());
-				Server s = new Server(ip, port);
-				s.connect();
+				ServerView view = ServerView.getInstance();
 
-				//TODO
+				try {
+					String ip = serverIp.getText();
+					Integer port = Integer.parseInt(serverPort.getText());
+					
+					view.server = new Server(ip, port);
+					if (view.server.connect()) {
+						view.printToChat("Successfully connected to " + ip + " on port " + port + " !");
+						
+						view.serverIp.setEditable(false);
+						view.serverPort.setEditable(false);
+						view.serverConnect.setEnabled(false);
+					} else {
+						view.printToChat("Could not connect to " + ip + " on port " + port + " !");
+					}
+				} catch (NumberFormatException exception) {
+					view.printToChat("Invalid port !");
+				}
 			}
 		});
 
@@ -75,9 +99,26 @@ public class ServerVue extends JFrame implements Runnable {
 		this.sendMessage.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String content = "";
+				ServerView view = ServerView.getInstance();
 
-				//TODO
+				String message = view.message.getText();
+
+				JSONObject jsonPayload = new JSONObject();
+				JSONObject messagePayload = new JSONObject();
+
+				messagePayload.put("message", message);
+
+				jsonPayload.put("id", "0");
+				jsonPayload.put("type", "REQUEST");
+				jsonPayload.put("name", "CREATE_MESSAGE");
+				jsonPayload.put("data", messagePayload);
+
+				/*
+				 * Encrypt the message
+				 */
+				byte[] encryptedMessage = Cryptography.encrypt(view.server.symmetricKey, jsonPayload.toString().getBytes());
+
+				view.server.send(encryptedMessage);
 			}
 		});
 
@@ -100,11 +141,6 @@ public class ServerVue extends JFrame implements Runnable {
 		this.scrollBar.getVerticalScrollBar().setUnitIncrement(23);
 		
 		this.add(this.scrollBar, BorderLayout.CENTER);
-		
-		/*this.server = server;
-		this.receiveSignalsThread = new Thread(this);
-		this.receiveSignalsThread.start();
-		*/
 
 		/*
 		 * Compress everything and set a better resolution
@@ -113,28 +149,7 @@ public class ServerVue extends JFrame implements Runnable {
 	}
 
 	public void printToChat(String message) {
-
-	}
-
-	
-	@Override
-	public void run() {
-		try {
-			while(true) {
-				byte[] receiveRaw = this.server.receive();
-
-				byte[] decryptedMessage = Cryptography.decrypt(this.server.symmetricKey, receiveRaw);
-
-				String message = new String(decryptedMessage);
-
-				//String existingChat = this.messageArea.getText();
-				//this.messageArea.setText(existingChat + "\n<Server>: " + message);
-			}
-		} catch (IllegalArgumentException e) {
-			System.err.println("Server sent invalid size, dropping message.");
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		ServerView view = ServerView.getInstance();
+		view.chatContent.setText(view.chatContent.getText() + System.lineSeparator() + message);
 	}
 }

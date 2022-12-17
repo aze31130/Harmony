@@ -1,4 +1,4 @@
-import views.ServerVue;
+import views.ServerView;
 
 public class Main {
 	/*
@@ -10,6 +10,6 @@ public class Main {
 		//Read config file (language, server list, preferences)
 
 		//Displays the main menu and waits for user inputs
-		new ServerVue();
+		ServerView.getInstance();
 	}
 }
