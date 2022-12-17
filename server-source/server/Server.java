@@ -1,3 +1,5 @@
+package server;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -23,8 +25,8 @@ import json.JSONObject;
 import plugins.Plugin;
 import plugins.PluginPriority;
 import users.Ban;
+import users.ClientHandler;
 import utils.FileUtils;
-import utils.JsonIO;
 
 public class Server {
 	//Singleton design pattern
@@ -51,7 +53,11 @@ public class Server {
 	public List<Ban> banList;
 	public List<Plugin> plugins;
 	public List<ClientHandler> onlineUsers;
+
+	public String configFilename = "config.json";
+	public String discordWebhookUrl = "";
 	public String version = "0.0.1";
+	
 
 	//Public and private encryption key
 	public KeyPair keyPair;
@@ -86,22 +92,24 @@ public class Server {
 	}
 
 	public void loadConfig() {
-		//Check if config file exists
-		//if (FileUtils.isFileExists("config.json")) {
-			//Load config file (server variables)
-		//} else {
-			//Create default one and load it
+		/*
+		 * Create config file if not exists
+		 */
+		if (!FileUtils.isFileExists(this.configFilename))
+			this.generateDefaultConfig();
 
-			//loadConfig();
-		//}
-		
+		//Load the file
+		JSONObject config = new JSONObject(FileUtils.readRawFile(this.configFilename));
 
-		
+		//Get discord webhook relay url
+		this.discordWebhookUrl = config.getString("discord_webhook_url");
 
 		//Load keyPair (for beta testing, it will be generated at each reboot)
 		this.keyPair = Cryptography.generateKeyPair(4096);
 		//Cryptography.saveKeyPair(this.keyPair);
 		//this.keyPair = Cryptography.loadKeyPair();
+
+		
 	}
 
 	public void loadCommands() {
@@ -118,6 +126,20 @@ public class Server {
 		//JSONObject bans = JsonIO.loadJsonObject(this.banListFileName);
 		
 		//System.out.println(bans.toString());
+	}
+
+	/*
+	 * Generates a default config file
+	 */
+	public void generateDefaultConfig() {
+		JSONObject defaultConfig = new JSONObject();
+		String[] keys = {"config_version", "discord_webhook_url"};
+		String[] values = {"1", "https://discord.com/api/webhooks"};
+
+		for (int i = 0 ; i < keys.length && i < values.length ; i++)
+			defaultConfig.put(keys[i], values[i]);
+
+		FileUtils.writeRawFile(this.configFilename, defaultConfig.toString());
 	}
 
 	/*

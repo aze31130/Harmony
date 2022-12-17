@@ -1,3 +1,5 @@
+import server.Server;
+
 public class Main {
 	/*
 	 * Entry point of the project

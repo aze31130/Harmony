@@ -3,8 +3,31 @@ package utils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class FileUtils {
+	public static String readRawFile(String filename) {
+		try {
+			return new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return new String();
+	}
+
+	public static void writeRawFile(String filename, String content) {
+		try {
+			FileWriter writer = new FileWriter(filename);
+			writer.write(content);
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
     public static Boolean isFileExists(String fileName) {
 		return new File(fileName).exists();
 	}
@@ -17,18 +40,5 @@ public class FileUtils {
 	public static void createFolder(String folderName) {
 		if (!isFolderExists(folderName))
 			new File(folderName).mkdir();
-	}
-
-	public static void createFile(String fileName, String content) {
-		if (!isFileExists(fileName)) {
-			try {
-				FileWriter f = new FileWriter(fileName);
-				f.write(content);
-				f.flush();
-				f.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 }

@@ -12,7 +12,9 @@ public class EventManager {
 	public List<Event> events;
 
 	public EventManager() {
-		//Instanciate all events
+		/*
+		 * Instanciate all events
+		 */
 		this.events = new ArrayList<Event>();
 
 		this.events.add(new MessageReceiveEvent());

@@ -61,7 +61,14 @@ public class ServerVue extends JFrame implements Action,Runnable {
 		String message = this.messageInput.getText();
 
 		JSONObject JSONMessage = new JSONObject();
-		JSONMessage.put("message", message);
+		JSONObject JSONMessageContent = new JSONObject();
+		JSONMessageContent.put("message", message);
+
+		JSONMessage.put("id", "0");
+		JSONMessage.put("type", "REQUEST");
+		JSONMessage.put("name", "CREATE_MESSAGE");
+		JSONMessage.put("data", JSONMessageContent);
+
 		byte[] encryptedMessage = Cryptography.encrypt(this.server.symmetricKey, JSONMessage.toString().getBytes());
 
 		this.server.send(encryptedMessage);

@@ -1,10 +1,8 @@
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+package users;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.PublicKey;
@@ -19,9 +17,7 @@ import json.JSONObject;
 import json.JSONTokener;
 import requests.RequestName;
 import requests.RequestType;
-import users.Ban;
-import users.BanType;
-import users.User;
+import server.Server;
 
 public class ClientHandler implements Runnable {
 	public User user;
@@ -116,7 +112,7 @@ public class ClientHandler implements Runnable {
 			this.send(encryptedSymetricKey);
 
 			//Handshake is done
-			
+
 			//If that procedure last for more than 10 seconds, kill the handler
 			//TODO
 		} catch (ClientReceiveException wrongBufferSize) {
@@ -154,19 +150,15 @@ public class ClientHandler implements Runnable {
 
 				//At this point, the json should follow the standard and have the 4 mandatory fields
 				//id, type, name and data
-				/*
 				String id = request.getString("id");
 				RequestType type = request.getEnum(RequestType.class, "type");
 				RequestName name = request.getEnum(RequestName.class, "name");
 				JSONObject data = request.getJSONObject("data");
-				*/
 
 				//Send the event to the event manager
-				//Server.getInstance().eventManager.triggerEvent(type, name, data);
+				Server.getInstance().eventManager.triggerEvent(type, name, data);
 
-				//We can ignore the next part because the events will handle what the server should do depending on the event.
-				String message = request.getString("message");
-				System.out.println("Received message: " + message);
+				
 				//if client is sending a message
 				// 	for(Plugin p : Server.getInstance().plugins) {
 				// 		try {
@@ -188,14 +180,7 @@ public class ClientHandler implements Runnable {
 				// 		}
 				// 	}
 
-				//Broadcast it to other clients
-				for (ClientHandler client : Server.getInstance().onlineUsers) {
-					if (client != this){
-						byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, message.getBytes());
-						client.send(messageEncrypted);
-					}
-				}
-				continue;
+
 
 				// //if client is sending a command action
 				// if (request.has("command")) {
