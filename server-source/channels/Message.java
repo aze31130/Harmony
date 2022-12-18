@@ -2,10 +2,11 @@ package channels;
 
 import java.util.Date;
 import java.util.List;
-
 import cryptography.Hash;
+import json.IJSONAble;
+import json.JSONObject;
 
-public class Message {
+public class Message implements IJSONAble {
 	public int id;
 	public String content;
 	public Date sent;
@@ -22,5 +23,16 @@ public class Message {
 		this.content = content;
 		this.sent = new Date();
 		this.hash = Hash.sha256sum(content);
+	}
+
+	@Override
+	public JSONObject toJSONObject() {
+		JSONObject result = new JSONObject();
+		
+		result.put("id", this.id);
+		result.put("content", this.content);
+		result.put("sent", this.sent.toString());
+
+		return result;
 	}
 }

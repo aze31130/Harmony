@@ -23,10 +23,4 @@ public class JsonIO {
 		}
 		return json;
 	}
-
-	public static void createDefaultConfig() {
-		//Create config.json file
-
-		//Create ban.json file
-	}
 }
