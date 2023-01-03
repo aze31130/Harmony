@@ -12,4 +12,8 @@ mkdir $BUILD_FOLDER
 javac --release $JAVA_VERSION -d $BUILD_FOLDER $(find server-source -type f -name "*.java")
 cd $BUILD_FOLDER
 jar cfe $OUTPUT_JAR_NAME Main $(find . -type f -name "*.class")
-cp -r ../config.json .
+cd ..
+if [ -f "config.json" ]; then
+    cp -r config.json $BUILD_FOLDER
+    echo "ok"
+fi
