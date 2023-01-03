@@ -69,6 +69,7 @@ public class ClientHandler implements Runnable {
 	}
 
 	public Boolean handshake() {
+		System.out.println("Handshake begin");
 		try {
 			//get ip address of client
 			InetAddress ip = this.socket.getInetAddress();
@@ -123,6 +124,7 @@ public class ClientHandler implements Runnable {
 			io.printStackTrace();
 			System.err.println("Client handshake incomplete !");
 		}
+		System.out.println("Handshake is done !");
 		return true;
 	}
 

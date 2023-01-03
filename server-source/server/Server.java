@@ -22,6 +22,7 @@ import commands.Version;
 import cryptography.Cryptography;
 import events.EventManager;
 import json.JSONObject;
+import logger.Logger;
 import plugins.Plugin;
 import plugins.PluginPriority;
 import users.Ban;
@@ -39,6 +40,8 @@ public class Server {
 	public String server_key_name;
 	public String server_key_algorithm;
 	public int maxMembers = 10;
+
+	public Logger logger = null;
 
 	public Boolean running = true;
 
@@ -58,6 +61,9 @@ public class Server {
 	public String discordWebhookUrl = "";
 	public String version = "0.0.1";
 	
+
+	private int keySize = 4096;
+
 
 	//Public and private encryption key
 	public KeyPair keyPair;
@@ -92,6 +98,7 @@ public class Server {
 	}
 
 	public void loadConfig() {
+		System.out.println("Loading configuration...");
 		/*
 		 * Create config file if not exists
 		 */
@@ -105,17 +112,19 @@ public class Server {
 		this.discordWebhookUrl = config.getString("discord_webhook_url");
 
 		//Load keyPair (for beta testing, it will be generated at each reboot)
-		this.keyPair = Cryptography.generateKeyPair(4096);
+		this.keyPair = Cryptography.generateKeyPair(this.keySize);
 		//Cryptography.saveKeyPair(this.keyPair);
 		//this.keyPair = Cryptography.loadKeyPair();
 
-		
+		System.out.println("Server configuration succesfully loaded !");
 	}
 
 	public void loadCommands() {
+		System.out.println("Loading core commands...");
 		this.commands = new ArrayList<Command>();
 		this.commands.add(new Help());
 		this.commands.add(new Version());
+		System.out.println("Successfully loaded " + this.commands.size() + " commands !");
 	}
 
 	/*

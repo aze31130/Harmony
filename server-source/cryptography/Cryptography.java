@@ -44,6 +44,7 @@ public class Cryptography {
 	 * Generates RSA keypair
 	 */
 	public static KeyPair generateKeyPair(int keySize) {
+		System.out.println("Generating RSA key pair (" + keySize + " byte long)...");
 		try {
 			KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
 			generator.initialize(keySize);
@@ -58,6 +59,7 @@ public class Cryptography {
 	 * Generate symmetric AES key
 	 */
 	public static SecretKey generateKey(int keySize) {
+		System.out.println("Generating AES key (" + keySize + " byte long)...");
 		try {
 			KeyGenerator generator = KeyGenerator.getInstance("AES");
 			generator.init(keySize);
