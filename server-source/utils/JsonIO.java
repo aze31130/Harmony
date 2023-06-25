@@ -7,6 +7,11 @@ import json.JSONObject;
 import json.JSONTokener;
 
 public class JsonIO {
+	
+	private JsonIO() {
+		throw new IllegalStateException("This class is utility and cannot be instanciated !");
+	}
+
 	public static JSONObject loadJsonObject(String path) {
 		if(!path.endsWith(".json"))
 			path = path.concat(".json");

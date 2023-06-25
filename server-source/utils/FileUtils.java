@@ -8,6 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class FileUtils {
+
+	private FileUtils() {
+		throw new IllegalStateException("This class is utility and cannot be instanciated !");
+	}
+	
 	public static String readRawFile(String filename) {
 		try {
 			return new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);

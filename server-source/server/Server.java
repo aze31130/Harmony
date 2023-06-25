@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import achievements.Achievement;
+import achievements.AchievementFactory;
 import channels.Channel;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -52,6 +54,7 @@ public class Server {
 
 	public EventManager eventManager;
 
+	public List<Achievement> achievements;
 	public List<Command> commands;
 	public List<Ban> banList;
 	public List<Plugin> plugins;
@@ -83,6 +86,9 @@ public class Server {
 
 		//Initialize the event manager
 		this.eventManager = new EventManager();
+
+		//Initialize advancements
+		this.achievements = AchievementFactory.instanciateAchievements();
 
 		//Loads plugins
 		//this.loadPlugins();

@@ -19,9 +19,9 @@ import users.User;
 
 public class MessageReceiveEvent extends Event {
 
-	// public TextChannel channel;
-	// public Message message;
-	// public User author;
+	public TextChannel channel;
+	public Message message;
+	public User author;
 
 	public MessageReceiveEvent() {
 		super(RequestType.REQUEST, RequestName.CREATE_MESSAGE);
@@ -39,12 +39,12 @@ public class MessageReceiveEvent extends Event {
 		 * When the server receives a message, it broadcast it to every other clients
 		 */
 		Server server = Server.getInstance();
-		String message = data.getString("message");
-		message = "<User " + user.hashCode() + ">" + message;
+		this.message = new Message(data.getString("message"));
+		this.message.content += "<User " + user.hashCode() + ">" + this.message.content;
 
 		for (ClientHandler client : server.onlineUsers) {
 			if (client.user != user) {
-				byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, message.getBytes());
+				byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, this.message.content.getBytes());
 				client.send(messageEncrypted);
 			}
 		}
@@ -52,11 +52,11 @@ public class MessageReceiveEvent extends Event {
 		/*
 		 * Discord relay, send the message by doing an HTTP request to a given webhook
 		 */
-		message = message.replace("\"", "\'");
+		this.message.content = this.message.content.replace("\"", "\'");
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder(URI.create(server.discordWebhookUrl))
 			.header("Content-type", "application/json")
-			.POST(HttpRequest.BodyPublishers.ofString("{\"content\": \"" + message + "\"}"))
+			.POST(HttpRequest.BodyPublishers.ofString("{\"content\": \"" + this.message.content + "\"}"))
 			.build();
 
 		try {

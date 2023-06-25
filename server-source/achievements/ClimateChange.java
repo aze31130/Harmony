@@ -9,7 +9,7 @@ public class ClimateChange implements Achievement {
 	}
 
 	@Override
-	public Boolean trigger(Event event) {
+	public Boolean trigger(User user, Event event) {
 		return false;
 	}
 
