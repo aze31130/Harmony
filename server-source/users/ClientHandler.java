@@ -134,6 +134,9 @@ public class ClientHandler implements Runnable {
 
 		if (this.isLoggedIn) {
 			for (ClientHandler client : Server.getInstance().onlineUsers) {
+
+				Server.getInstance().eventManager.triggerEventByName("UserConnectEvent", null);
+
 				String connectionMessage = "User " + this.user.hashCode() + " has connected !";
 				byte[] messageEncrypted = Cryptography.encrypt(client.symetricKey, connectionMessage.getBytes());
 				client.send(messageEncrypted);
@@ -166,28 +169,6 @@ public class ClientHandler implements Runnable {
 
 				//Send the event to the event manager
 				Server.getInstance().eventManager.triggerEvent(user, name, data);
-
-				
-				//if client is sending a message
-				// 	for(Plugin p : Server.getInstance().plugins) {
-				// 		try {
-				// 			Object o = p.pluginClass.getDeclaredConstructor().newInstance();
-				// 			Method m = p.pluginClass.getMethod("onMessage", String.class);
-				// 			m.invoke(o, message);
-				// 		} catch (InstantiationException e) {
-				// 			e.printStackTrace();
-				// 		} catch (IllegalAccessException e) {
-				// 			e.printStackTrace();
-				// 		} catch (IllegalArgumentException e) {
-				// 			e.printStackTrace();
-				// 		} catch (InvocationTargetException e) {
-				// 			e.printStackTrace();
-				// 		} catch (NoSuchMethodException e) {
-				// 			e.printStackTrace();
-				// 		} catch (SecurityException e) {
-				// 			e.printStackTrace();
-				// 		}
-				// 	}
 			} catch(IOException e) {
 				Server.getInstance().onlineUsers.remove(this);
 				System.out.println("Client disconnected !");

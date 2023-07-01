@@ -3,15 +3,14 @@ package events;
 import java.util.Date;
 
 import json.JSONObject;
-import requests.RequestName;
 import users.User;
 
 public abstract class Event {
-	public RequestName[] name;
+	public EventType type;
 	public Date eventTime;
 
-	public Event(RequestName[] name) {
-		this.name = name;
+	public Event(EventType type) {
+		this.type = type;
 		this.eventTime = new Date();
 	}
 

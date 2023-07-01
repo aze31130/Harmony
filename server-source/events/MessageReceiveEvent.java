@@ -11,7 +11,6 @@ import channels.Message;
 import channels.TextChannel;
 import cryptography.Cryptography;
 import json.JSONObject;
-import requests.RequestName;
 import server.Server;
 import users.ClientHandler;
 import users.User;
@@ -23,9 +22,7 @@ public class MessageReceiveEvent extends Event {
 	public User author;
 
 	public MessageReceiveEvent() {
-		super(new RequestName[] {
-			RequestName.CREATE_MESSAGE
-		});
+		super(EventType.MessageReceive);
 	}
 
 	/*

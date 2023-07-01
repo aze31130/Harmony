@@ -18,10 +18,11 @@ public class Shutdown extends Command {
 	@Override
 	public void execute(User executor, Channel channel, String[] arguments) {
 		//Admin check here
-		if (users.Permission.canExecute(Privilege.ADMINISTRATOR, executor)) {
-			System.out.println("Shutting down the server !");
-		} else {
+		if (!users.Permission.canExecute(Privilege.ADMINISTRATOR, executor)) {
 			System.out.println("Sorry, you do not have the permission do to this !");
+			return;
 		}
+
+		System.out.println("Shutting down the server !");
 	}
 }

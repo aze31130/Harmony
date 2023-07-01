@@ -4,7 +4,6 @@ public enum RequestName {
 	/*
 	 * Get the list of users with their status (online, offline), activities (playing, listening)
 	 * and their metadata (roles, profile picture url, time joined, etc...)
-	 * 
 	 */
 	GET_USERS,
 	/*
