@@ -4,7 +4,6 @@ import events.Event;
 import events.MessageReceiveEvent;
 import items.WelcomeApple;
 import requests.RequestName;
-import requests.RequestType;
 import users.User;
 
 public class HelloWorld implements Achievement {
@@ -13,10 +12,6 @@ public class HelloWorld implements Achievement {
 	 * 
 	 * Awards when a user sends in any channel "Hello World !"
 	 */
-
-	public final RequestType[] triggerType = {
-		RequestType.COMMAND
-	};
 	public final RequestName[] triggerName = {
 		RequestName.CREATE_MESSAGE
 	};

@@ -1,5 +1,6 @@
 package commands;
 
+import channels.Channel;
 import users.Privilege;
 import users.User;
 
@@ -15,7 +16,7 @@ public class Shutdown extends Command {
 	}
 
 	@Override
-	public void execute(User executor, String[] arguments) {
+	public void execute(User executor, Channel channel, String[] arguments) {
 		//Admin check here
 		if (users.Permission.canExecute(Privilege.ADMINISTRATOR, executor)) {
 			System.out.println("Shutting down the server !");

@@ -12,7 +12,6 @@ import channels.TextChannel;
 import cryptography.Cryptography;
 import json.JSONObject;
 import requests.RequestName;
-import requests.RequestType;
 import server.Server;
 import users.ClientHandler;
 import users.User;
@@ -24,7 +23,9 @@ public class MessageReceiveEvent extends Event {
 	public User author;
 
 	public MessageReceiveEvent() {
-		super(RequestType.REQUEST, RequestName.CREATE_MESSAGE);
+		super(new RequestName[] {
+			RequestName.CREATE_MESSAGE
+		});
 	}
 
 	/*
@@ -34,7 +35,7 @@ public class MessageReceiveEvent extends Event {
 	 * @String: message (the content of the message)
 	 */
 	@Override
-	public void fire(User user, JSONObject data) {
+	public void fire(User user,  String name, JSONObject data) {
 		/*
 		 * When the server receives a message, it broadcast it to every other clients
 		 */

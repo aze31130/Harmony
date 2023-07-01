@@ -1,5 +1,6 @@
 package commands;
 
+import channels.Channel;
 import users.Privilege;
 import users.User;
 
@@ -19,5 +20,5 @@ public abstract class Command {
 	}
 
 	//Command design pattern
-	public abstract void execute(User executor, String[] arguments);
+	public abstract void execute(User executor, Channel channel, String[] arguments);
 }

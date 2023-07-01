@@ -5,7 +5,6 @@ import java.util.List;
 
 import achievements.Achievement;
 import requests.RequestName;
-import requests.RequestType;
 import server.Server;
 
 public class AchievementsUtils {
@@ -19,7 +18,7 @@ public class AchievementsUtils {
      * an event will occur, it is better to only execute the triggers of events that are tagged accordingly to the
      * event that happened.
      */
-    public static List<Achievement> filterAchievements(RequestType requestType, RequestName requestName) {
+    public static List<Achievement> filterAchievements(RequestName requestName) {
         List<Achievement> achievements = new ArrayList<Achievement>();
 
         for (Achievement a : Server.getInstance().achievements) {

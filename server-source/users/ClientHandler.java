@@ -13,8 +13,8 @@ import exceptions.ClientReceiveException;
 import json.JSONException;
 import json.JSONObject;
 import json.JSONTokener;
+import requests.Request;
 import requests.RequestName;
-import requests.RequestType;
 import server.Server;
 
 public class ClientHandler implements Runnable {
@@ -158,13 +158,14 @@ public class ClientHandler implements Runnable {
 
 				//At this point, the json should follow the standard and have the 4 mandatory fields
 				//id, user, type, name, data
+				//Interaction i = new Interaction(0, decryptedMessage, null, null, request);
+				
 				String id = request.getString("id");
-				RequestType type = request.getEnum(RequestType.class, "type");
 				RequestName name = request.getEnum(RequestName.class, "name");
 				JSONObject data = request.getJSONObject("data");
 
 				//Send the event to the event manager
-				Server.getInstance().eventManager.triggerEvent(user, type, name, data);
+				Server.getInstance().eventManager.triggerEvent(user, name, data);
 
 				
 				//if client is sending a message
@@ -187,14 +188,6 @@ public class ClientHandler implements Runnable {
 				// 			e.printStackTrace();
 				// 		}
 				// 	}
-
-
-
-				// //if client is sending a command action
-				// if (request.has("command")) {
-				// 	System.out.println("Received command: " + request.getString("command"));
-				// 	continue;
-				// }
 			} catch(IOException e) {
 				Server.getInstance().onlineUsers.remove(this);
 				System.out.println("Client disconnected !");

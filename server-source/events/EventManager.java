@@ -5,9 +5,8 @@ import java.util.List;
 
 import achievements.Achievement;
 import json.JSONObject;
+import requests.Request;
 import requests.RequestName;
-import requests.RequestType;
-import server.Server;
 import users.User;
 import utils.AchievementsUtils;
 
@@ -24,19 +23,23 @@ public class EventManager {
 		this.events.add(new MessageReceiveEvent());
 	}
 
-	public void triggerEvent(User user, RequestType requestType, RequestName requestName, JSONObject data) {
+	public void triggerEvent(User user, RequestName requestName, JSONObject data) {
 		//Fires the event depending on the given request
 		for (Event event : this.events) {
-			if (event.type == requestType && event.name == requestName) {
-				//Fire the event
-				event.fire(user, data);
-
-				//Check if the event unlocked an achievement
-				for (Achievement a : AchievementsUtils.filterAchievements(requestType, requestName))
-					if (a.trigger(user, event))
-						a.reward(user);
-				
-				return;
+			for (RequestName rn : event.name) {
+				if (rn == requestName) {
+					//Fire the event
+					event.fire(user, rn.toString(), data);
+	
+					//Check if the event unlocked an achievement
+					for (Achievement a : AchievementsUtils.filterAchievements(requestName))
+						if (a.trigger(user, event))
+							a.reward(user);
+					
+					// Check for plugin triggers
+					// TODO
+					return;
+				}
 			}
 		}
 	}
