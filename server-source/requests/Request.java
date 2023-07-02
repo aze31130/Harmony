@@ -6,8 +6,18 @@ public class Request {
 	/*
 	 * - Id = 1 
 	 * - Version = 1
-	 * - Name = Notification|GetChannel|Ban|RandomMeme|Gamble|SendFile
+	 * - Name = Notification|GetChannel|CreateMessage|SendFile
 	 * - Data { ... }
+	 * 
+	 * In case of a command,
+	 * 
+	 * - Id = 1 
+	 * - Version = 1
+	 * - Name = Command
+	 * - Data {
+	 *    name: RandomMeme|Gamble|Ban
+	 *    channel: general
+	 *  }
 	 */
 	public JSONObject content;
 

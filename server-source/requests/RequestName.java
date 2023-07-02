@@ -1,5 +1,8 @@
 package requests;
 
+/*
+ * This enumeration contains every possible request name that a client can send in the server.
+ */
 public enum RequestName {
 	/*
 	 * Get the list of users with their status (online, offline), activities (playing, listening)
@@ -31,9 +34,9 @@ public enum RequestName {
 	 */
 	DELETE_MESSAGE,
 	/*
-	 * When a priviledged user wants to shutdown the server.
+	 * When a user performs a command.
 	 */
-	COMMAND_SHUTDOWN,
+	COMMAND,
 	/*
 	 * When the server is sending notifications to clients. This include a short version of the
 	 * message to not make the client download the content.
