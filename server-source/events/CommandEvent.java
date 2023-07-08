@@ -11,7 +11,7 @@ public class CommandEvent extends Event {
 	public TextChannel channel;
 
 	public CommandEvent() {
-		super(EventType.Command);
+		super("Command");
 	}
 
 	/*
@@ -20,7 +20,7 @@ public class CommandEvent extends Event {
 	 * @String: Arguments (json array of arguments)
 	 */
 	@Override
-	public void fire(User sender, String name, JSONObject data) {
+	public void fire(User sender, JSONObject data) {
 		/*
 		 * Execute the command
 		 */

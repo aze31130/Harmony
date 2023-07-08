@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 
 import commands.Command;
-import commands.Help;
-import commands.Version;
+import commands.CommandFactory;
 import cryptography.Cryptography;
 import events.EventManager;
 import json.JSONObject;
@@ -63,7 +62,6 @@ public class Server {
 	public String configFilename = "config.json";
 	public String discordWebhookUrl = "";
 	public String version = "0.0.1";
-	
 
 	private int keySize = 4096;
 
@@ -72,26 +70,45 @@ public class Server {
 	public KeyPair keyPair;
 
 	private Server() {
-		//Loads server's variables
+		/*
+		 * Loads server's variables
+		 */
 		this.loadConfig();
 
-		//Loads core commands
-		this.loadCommands();
-
-		//Loads banlist
+		/*
+		 * Loads banlist
+		 */
 		this.loadBanlist();
 
-		//Initialize list of online people
+		/*
+		 * Initialize list of online people
+		 */
 		this.onlineUsers = new ArrayList<ClientHandler>();
 
-		//Initialize the event manager
+		/*
+		 * Initialize the event manager
+		 */
 		this.eventManager = new EventManager();
 
-		//Initialize advancements
-		this.achievements = AchievementFactory.instanciateAchievements();
+		/*
+		 * Loads core commands
+		 */
+		this.loadCommands();
 
-		//Loads plugins
+		/*
+		 * Initialize advancements
+		 */
+		this.loadAchievements();
+
+		/*
+		 * Loads plugins
+		 */
 		//this.loadPlugins();
+
+		/*
+		 * Call the "LoadEvent" 
+		 */
+		this.eventManager.triggerEventByName("Load", null);
 	}
 
 	/*
@@ -125,11 +142,17 @@ public class Server {
 		System.out.println("Server configuration succesfully loaded !");
 	}
 
+	public void loadAchievements() {
+		System.out.println("Loading core achievements...");
+		this.achievements = AchievementFactory.instanciateAchievements();
+
+		System.out.println("Successfully loaded " + this.achievements.size() + " achievements !");
+	}
+
 	public void loadCommands() {
 		System.out.println("Loading core commands...");
-		this.commands = new ArrayList<Command>();
-		this.commands.add(new Help());
-		this.commands.add(new Version());
+		this.commands = CommandFactory.instanciateCommands();
+
 		System.out.println("Successfully loaded " + this.commands.size() + " commands !");
 	}
 

@@ -6,13 +6,17 @@ import json.JSONObject;
 import users.User;
 
 public abstract class Event {
-	public EventType type;
+	/*
+	 * We are not using an enumeration for the EventType to allow plugins to
+	 * easily manipulate and add custom events.
+	 */
+	public String type;
 	public Date eventTime;
 
-	public Event(EventType type) {
+	public Event(String type) {
 		this.type = type;
 		this.eventTime = new Date();
 	}
 
-	public abstract void fire(User user, String name, JSONObject data);
+	public abstract void fire(User user, JSONObject data);
 }

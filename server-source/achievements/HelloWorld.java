@@ -20,7 +20,9 @@ public class HelloWorld implements Achievement {
 
 	@Override
 	public Boolean trigger(User user, Event event) {
-		//Security check for safe downcast
+		/*
+		 * Security check for safe downcast 
+		 */
 		if (!(event instanceof MessageReceiveEvent)) {
 			//Logs an error
 			System.err.println("Unable to downcast event !");

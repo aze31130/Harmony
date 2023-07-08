@@ -31,12 +31,10 @@ public class EventManager {
 	public void triggerEvent(User user, RequestName requestName, JSONObject data) {
 		//Fires the event depending on the given request
 		for (Event event : this.events) {
-			/*
-			 * TODO, Still need to figure out what kind of selector is the best for events (string, enum, combo of both ?)
-			 */
-			//if (event.type == requestName.toString()) {
+			if (event.type.equalsIgnoreCase(requestName.toString())) {
+
 				//Fire the event
-				event.fire(user, event.type.toString(), data);
+				event.fire(user, data);
 
 				/*
 				 * Check if the event unlocked an achievement
@@ -61,11 +59,16 @@ public class EventManager {
 					}
 				}
 				return;
-			// }
+			}
 		}
 	}
 
 	public void triggerEventByName(String eventName, JSONObject data) {
-		//TODO
+		for (Event event : this.events) {
+			if (event.type.equalsIgnoreCase(eventName)) {
+				event.fire(null, data);
+				return;
+			}
+		}
 	}
 }

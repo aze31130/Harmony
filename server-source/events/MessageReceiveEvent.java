@@ -1,6 +1,5 @@
 package events;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -22,7 +21,7 @@ public class MessageReceiveEvent extends Event {
 	public User author;
 
 	public MessageReceiveEvent() {
-		super(EventType.MessageReceive);
+		super("MessageReceive");
 	}
 
 	/*
@@ -32,7 +31,7 @@ public class MessageReceiveEvent extends Event {
 	 * @String: message (the content of the message)
 	 */
 	@Override
-	public void fire(User user,  String name, JSONObject data) {
+	public void fire(User user, JSONObject data) {
 		/*
 		 * When the server receives a message, it broadcast it to every other clients
 		 */
@@ -64,8 +63,5 @@ public class MessageReceiveEvent extends Event {
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
-
-		//Check for achievement triggers ?
-		//Check for plugin triggers
 	}
 }

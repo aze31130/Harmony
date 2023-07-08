@@ -6,11 +6,11 @@ import users.User;
 public class UserConnectEvent extends Event {
 
 	public UserConnectEvent() {
-		super(EventType.UserConnect);
+		super("UserConnect");
 	}
 
 	@Override
-	public void fire(User user, String name, JSONObject data) {
+	public void fire(User user, JSONObject data) {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Unimplemented method 'fire'");
 	}
