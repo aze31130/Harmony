@@ -244,6 +244,21 @@ public class Server {
 					Object o = c.getDeclaredConstructor().newInstance();
 					Method m = c.getMethod("onLoad");
 					m.invoke(o);
+
+					/*
+					 * As we do not know if the plugin will lock into infinite loop, we can setup a timeout like that:
+					 * 
+					 * 
+					 * ExecutorService executor = Executors.newCachedThreadPool();
+					 * Callable<Object> task = new Callable<Object>();
+					 * Future<Object> future = executor.submit(task);
+					 * try {
+					 * 	Object result = future.get(5, TimeUnit.SECONDS); 
+					 * } catch (Exception ex) {
+					 * } finally {
+					 * 	future.cancel(true); // may or may not desire this
+					 * }
+					 */
 					urlcl.close();
 				}
 			}
